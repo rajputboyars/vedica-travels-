@@ -115,7 +115,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
               <Users size={14} />{tour.availableSeats} seats left
             </div>
 
-            <BookingForm tourId={tour._id} tourTitle={tour.title} />
+            <BookingForm tourId={tour._id} tourTitle={tour.title} price={tour.price} />
 
             <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
               <a href="tel:9773834051" className="flex items-center justify-center gap-2 w-full py-2.5 border border-orange-300 text-orange-600 rounded-lg text-sm font-medium hover:bg-orange-50 transition-colors">

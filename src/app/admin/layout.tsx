@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { signOut } from 'next-auth/react'
-import { LayoutDashboard, Map, BookOpen, Image, Settings, LogOut, Menu } from 'lucide-react'
+import { LayoutDashboard, Map, BookOpen, Image, Settings, LogOut, Menu, Users } from 'lucide-react'
 import { useState } from 'react'
 import { cn } from '@/lib/utils'
 
@@ -10,6 +10,7 @@ const navItems = [
   { href: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
   { href: '/admin/tours', label: 'Tours', icon: Map },
   { href: '/admin/bookings', label: 'Bookings', icon: BookOpen },
+  { href: '/admin/passengers', label: 'Passengers', icon: Users },
   { href: '/admin/gallery', label: 'Gallery', icon: Image },
   { href: '/admin/settings', label: 'Settings', icon: Settings },
 ]
