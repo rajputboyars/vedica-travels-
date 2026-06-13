@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import connectDB from '@/lib/mongodb'
-import Booking from '@/models/Booking'
+import { isDBConfigured, getBookings, addBooking, genBookingRef } from '@/lib/demo-store'
 
 export async function GET() {
+  if (!isDBConfigured) {
+    return NextResponse.json(getBookings())
+  }
   try {
+    const { default: connectDB } = await import('@/lib/mongodb')
+    const { default: Booking } = await import('@/models/Booking')
     await connectDB()
     const bookings = await Booking.find({}).sort({ createdAt: -1 }).populate('tourId', 'title')
     return NextResponse.json(bookings)
@@ -13,9 +17,15 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  const body = await req.json()
+  if (!body.bookingRef) body.bookingRef = genBookingRef()
+  if (!isDBConfigured) {
+    return NextResponse.json(addBooking(body), { status: 201 })
+  }
   try {
+    const { default: connectDB } = await import('@/lib/mongodb')
+    const { default: Booking } = await import('@/models/Booking')
     await connectDB()
-    const body = await req.json()
     const booking = await Booking.create(body)
     return NextResponse.json(booking, { status: 201 })
   } catch {

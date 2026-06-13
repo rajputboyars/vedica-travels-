@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { Plus, X } from 'lucide-react'
+import { Plus, X, Upload } from 'lucide-react'
 
 interface TourFormProps {
   initialData?: any
@@ -23,8 +23,11 @@ export default function TourForm({ initialData, tourId }: TourFormProps) {
     totalSeats: initialData?.totalSeats || 50,
     availableSeats: initialData?.availableSeats || 50,
     status: initialData?.status || 'upcoming',
+    category: initialData?.category || 'spiritual',
     featured: initialData?.featured || false,
     image: initialData?.image || '',
+    qrImage: initialData?.qrImage || '',
+    paymentNote: initialData?.paymentNote || '',
     services: initialData?.services || [] as string[],
     inclusions: initialData?.inclusions || [] as string[],
     pickupPoints: initialData?.pickupPoints || [] as string[],
@@ -42,6 +45,14 @@ export default function TourForm({ initialData, tourId }: TourFormProps) {
 
   function removeItem(field: 'services' | 'inclusions' | 'pickupPoints', index: number) {
     setForm(prev => ({ ...prev, [field]: prev[field].filter((_: any, i: number) => i !== index) }))
+  }
+
+  function handleQrFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = () => setForm(prev => ({ ...prev, qrImage: reader.result as string }))
+    reader.readAsDataURL(file)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -118,6 +129,13 @@ export default function TourForm({ initialData, tourId }: TourFormProps) {
             </select>
           </div>
           <div>
+            <label className={labelClass}>Category *</label>
+            <select className={inputClass} value={form.category} onChange={e => setForm({...form, category: e.target.value})}>
+              <option value="spiritual">🛕 Spiritual Yatra</option>
+              <option value="leisure">🏔️ Holiday / Leisure Trip</option>
+            </select>
+          </div>
+          <div>
             <label className={labelClass}>Image URL</label>
             <input className={inputClass} value={form.image} onChange={e => setForm({...form, image: e.target.value})} placeholder="https://..." />
           </div>
@@ -173,6 +191,32 @@ export default function TourForm({ initialData, tourId }: TourFormProps) {
               {s} <button type="button" onClick={() => removeItem('pickupPoints', i)}><X size={11} /></button>
             </span>
           ))}
+        </div>
+      </div>
+
+      {/* Payment */}
+      <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
+        <h2 className="font-semibold text-gray-800">Payment (QR Code)</h2>
+        <div>
+          <label className={labelClass}>Upload Payment QR Code</label>
+          <div className="flex items-center gap-4">
+            <label className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-orange-300 rounded-lg text-orange-600 text-sm font-medium hover:bg-orange-50 cursor-pointer">
+              <Upload size={15} /> {form.qrImage ? 'Change QR' : 'Choose QR image'}
+              <input type="file" accept="image/*" className="hidden" onChange={handleQrFile} />
+            </label>
+            {form.qrImage && (
+              <div className="flex items-center gap-2">
+                <img src={form.qrImage} alt="QR" className="w-16 h-16 object-contain border border-gray-200 rounded-lg bg-white" />
+                <button type="button" onClick={() => setForm({ ...form, qrImage: '' })} className="text-xs text-red-500 underline">Remove</button>
+              </div>
+            )}
+          </div>
+          <p className="text-xs text-gray-400 mt-1">This QR is shown to users on the payment step.</p>
+        </div>
+        <div>
+          <label className={labelClass}>Payment Instructions / Note</label>
+          <textarea className={inputClass} value={form.paymentNote} onChange={e => setForm({ ...form, paymentNote: e.target.value })} rows={2}
+            placeholder="e.g. Please call once before payment, then send the screenshot to confirm." />
         </div>
       </div>
 

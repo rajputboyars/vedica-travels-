@@ -2,7 +2,8 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, User, Phone, CheckCircle2, XCircle, Clock, Download } from 'lucide-react'
+import { ArrowLeft, User, Phone, CheckCircle2, XCircle, Clock, Download, UserPlus } from 'lucide-react'
+import { downloadCSV, bookingsToRows } from '@/lib/export'
 
 const attendanceStyles: Record<string, string> = {
   present: 'bg-green-100 text-green-700 border-green-200',
@@ -23,6 +24,9 @@ export default function TourPassengersPage() {
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'all' | 'present' | 'absent' | 'not_marked'>('all')
+  const [showWalkIn, setShowWalkIn] = useState(false)
+  const [walkIn, setWalkIn] = useState({ name: '', phone: '', age: '', gender: 'male', idType: 'aadhar', idNumber: '', amountPaid: '' })
+  const [savingWalkIn, setSavingWalkIn] = useState(false)
 
   async function load() {
     const [tourRes, bookingsRes] = await Promise.all([
@@ -59,6 +63,39 @@ export default function TourPassengersPage() {
     await load()
   }
 
+  async function addWalkIn() {
+    if (!walkIn.name || !walkIn.phone) return
+    setSavingWalkIn(true)
+    await fetch('/api/bookings', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        tourId,
+        tourTitle: tour?.title || '',
+        name: walkIn.name,
+        phone: walkIn.phone,
+        passengers: [{
+          name: walkIn.name, age: Number(walkIn.age) || 0, gender: walkIn.gender,
+          idType: walkIn.idType, idNumber: walkIn.idNumber, attendance: 'present',
+        }],
+        numPersons: 1,
+        status: 'confirmed',
+        totalAmount: tour?.price || undefined,
+        amountPaid: Number(walkIn.amountPaid) || 0,
+        paymentStatus: Number(walkIn.amountPaid) > 0 ? 'confirmed' : 'pending',
+        isWalkIn: true,
+      }),
+    })
+    setWalkIn({ name: '', phone: '', age: '', gender: 'male', idType: 'aadhar', idNumber: '', amountPaid: '' })
+    setShowWalkIn(false)
+    setSavingWalkIn(false)
+    await load()
+  }
+
+  function exportCsv() {
+    const safe = (tour?.title || 'trip').replace(/[^a-z0-9]+/gi, '-').toLowerCase()
+    downloadCSV(`passengers-${safe}`, bookingsToRows(bookings))
+  }
+
   useEffect(() => { load() }, [tourId])
 
   if (loading) return <div className="text-center py-12 text-gray-400">Loading...</div>
@@ -86,11 +123,39 @@ export default function TourPassengersPage() {
         <button onClick={() => router.back()} className="text-gray-500 hover:text-gray-700">
           <ArrowLeft size={20} />
         </button>
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-800">{tour?.title || 'Tour Passengers'}</h1>
           <p className="text-gray-500 text-sm">{tour ? new Date(tour.startDate).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : ''}</p>
         </div>
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={exportCsv}><Download size={14} className="mr-1" /> Export</Button>
+          <Button size="sm" onClick={() => setShowWalkIn(v => !v)}><UserPlus size={14} className="mr-1" /> Add Walk-in</Button>
+        </div>
       </div>
+
+      {/* Walk-in form */}
+      {showWalkIn && (
+        <div className="bg-white rounded-xl shadow-sm p-5 border border-orange-100">
+          <h3 className="font-semibold text-gray-800 mb-3">Add Walk-in Passenger</h3>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Full name *" value={walkIn.name} onChange={e => setWalkIn({ ...walkIn, name: e.target.value })} />
+            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Phone *" value={walkIn.phone} onChange={e => setWalkIn({ ...walkIn, phone: e.target.value })} />
+            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" type="number" placeholder="Age" value={walkIn.age} onChange={e => setWalkIn({ ...walkIn, age: e.target.value })} />
+            <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm" value={walkIn.gender} onChange={e => setWalkIn({ ...walkIn, gender: e.target.value })}>
+              <option value="male">Male</option><option value="female">Female</option><option value="other">Other</option>
+            </select>
+            <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm" value={walkIn.idType} onChange={e => setWalkIn({ ...walkIn, idType: e.target.value })}>
+              <option value="aadhar">Aadhar</option><option value="pan">PAN</option><option value="passport">Passport</option><option value="driving_license">DL</option><option value="voter_id">Voter ID</option>
+            </select>
+            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="ID number" value={walkIn.idNumber} onChange={e => setWalkIn({ ...walkIn, idNumber: e.target.value })} />
+            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" type="number" placeholder="Amount paid (cash)" value={walkIn.amountPaid} onChange={e => setWalkIn({ ...walkIn, amountPaid: e.target.value })} />
+          </div>
+          <div className="flex gap-2 mt-3">
+            <Button size="sm" onClick={addWalkIn} disabled={savingWalkIn || !walkIn.name || !walkIn.phone}>{savingWalkIn ? 'Adding...' : 'Add Passenger'}</Button>
+            <Button size="sm" variant="outline" onClick={() => setShowWalkIn(false)}>Cancel</Button>
+          </div>
+        </div>
+      )}
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

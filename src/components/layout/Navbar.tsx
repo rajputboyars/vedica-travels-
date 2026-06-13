@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useState } from 'react'
-import { Menu, X, Phone } from 'lucide-react'
+import { Menu, X, Phone, LogIn } from 'lucide-react'
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
@@ -29,6 +29,10 @@ export default function Navbar() {
               <Phone size={14} />
               9773834051
             </a>
+            <Link href="/admin/login" className="flex items-center gap-1 border border-white/70 px-3 py-1.5 rounded-full text-sm font-semibold hover:bg-white hover:text-orange-700 transition-colors">
+              <LogIn size={14} />
+              Login
+            </Link>
           </div>
 
           <button className="md:hidden" onClick={() => setOpen(!open)}>
@@ -46,6 +50,9 @@ export default function Navbar() {
           <a href="tel:9773834051" className="flex items-center gap-1 text-orange-200">
             <Phone size={14} /> 9773834051
           </a>
+          <Link href="/admin/login" className="flex items-center gap-1 hover:text-orange-200" onClick={() => setOpen(false)}>
+            <LogIn size={14} /> Login
+          </Link>
         </div>
       )}
     </nav>

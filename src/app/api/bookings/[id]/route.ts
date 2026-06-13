@@ -1,10 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server'
-import connectDB from '@/lib/mongodb'
-import Booking from '@/models/Booking'
+import { isDBConfigured, getBooking, updateBooking, deleteBooking } from '@/lib/demo-store'
 
 export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  if (!isDBConfigured) {
+    const booking = getBooking(id)
+    if (!booking) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+    return NextResponse.json(booking)
+  }
   try {
+    const { default: connectDB } = await import('@/lib/mongodb')
+    const { default: Booking } = await import('@/models/Booking')
     await connectDB()
     const booking = await Booking.findById(id)
     if (!booking) return NextResponse.json({ error: 'Not found' }, { status: 404 })
@@ -16,9 +22,16 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ id:
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  const body = await req.json()
+  if (!isDBConfigured) {
+    const booking = updateBooking(id, body)
+    if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
+    return NextResponse.json(booking)
+  }
   try {
+    const { default: connectDB } = await import('@/lib/mongodb')
+    const { default: Booking } = await import('@/models/Booking')
     await connectDB()
-    const body = await req.json()
     const booking = await Booking.findByIdAndUpdate(id, body, { new: true })
     if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
     return NextResponse.json(booking)
@@ -29,7 +42,13 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
 export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
+  if (!isDBConfigured) {
+    deleteBooking(id)
+    return NextResponse.json({ success: true })
+  }
   try {
+    const { default: connectDB } = await import('@/lib/mongodb')
+    const { default: Booking } = await import('@/models/Booking')
     await connectDB()
     await Booking.findByIdAndDelete(id)
     return NextResponse.json({ success: true })

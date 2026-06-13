@@ -1,12 +1,24 @@
 import { Calendar, Users, BookOpen, TrendingUp } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import connectDB from '@/lib/mongodb'
-import Tour from '@/models/Tour'
-import Booking from '@/models/Booking'
+import { isDBConfigured, getBookings } from '@/lib/demo-store'
+import { DEMO_TOURS } from '@/lib/demo-data'
 import Link from 'next/link'
 
 async function getStats() {
+  if (!isDBConfigured) {
+    const bookings = getBookings()
+    return {
+      totalTours: DEMO_TOURS.length,
+      upcomingTours: DEMO_TOURS.filter(t => t.status === 'upcoming').length,
+      totalBookings: bookings.length,
+      pendingBookings: bookings.filter(b => b.status === 'pending').length,
+      recentBookings: bookings.slice(0, 5),
+    }
+  }
   try {
+    const { default: connectDB } = await import('@/lib/mongodb')
+    const { default: Tour } = await import('@/models/Tour')
+    const { default: Booking } = await import('@/models/Booking')
     await connectDB()
     const [totalTours, upcomingTours, totalBookings, pendingBookings] = await Promise.all([
       Tour.countDocuments(),

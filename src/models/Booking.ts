@@ -10,6 +10,7 @@ export interface IPassenger {
 }
 
 export interface IBooking extends Document {
+  bookingRef: string
   tourId: mongoose.Types.ObjectId
   tourTitle: string
   // Lead contact
@@ -25,6 +26,14 @@ export interface IBooking extends Document {
   message?: string
   status: 'pending' | 'confirmed' | 'cancelled'
   totalAmount?: number
+  // Payment
+  paymentStatus: 'pending' | 'screenshot_received' | 'confirmed' | 'rejected'
+  amountPaid: number
+  paymentMethod?: string
+  paymentRef?: string
+  paymentScreenshot?: string
+  paymentNote?: string
+  isWalkIn?: boolean
   createdAt: Date
 }
 
@@ -38,6 +47,7 @@ const PassengerSchema = new Schema<IPassenger>({
 })
 
 const BookingSchema = new Schema<IBooking>({
+  bookingRef: { type: String, index: true },
   tourId: { type: Schema.Types.ObjectId, ref: 'Tour', required: true },
   tourTitle: { type: String, required: true },
   name: { type: String, required: true },
@@ -51,6 +61,14 @@ const BookingSchema = new Schema<IBooking>({
   message: { type: String },
   status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
   totalAmount: { type: Number },
+  // Payment
+  paymentStatus: { type: String, enum: ['pending', 'screenshot_received', 'confirmed', 'rejected'], default: 'pending' },
+  amountPaid: { type: Number, default: 0 },
+  paymentMethod: { type: String },
+  paymentRef: { type: String },
+  paymentScreenshot: { type: String },
+  paymentNote: { type: String },
+  isWalkIn: { type: Boolean, default: false },
 }, { timestamps: true })
 
 export default mongoose.models.Booking || mongoose.model<IBooking>('Booking', BookingSchema)

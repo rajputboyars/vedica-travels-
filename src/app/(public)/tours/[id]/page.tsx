@@ -3,10 +3,11 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Calendar, Clock, MapPin, Users, Phone, MessageCircle, CheckCircle2 } from 'lucide-react'
 import BookingForm from './BookingForm'
+import { getBaseUrl } from '@/lib/base-url'
 
 async function getTour(id: string) {
   try {
-    const res = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/tours/${id}`, { cache: 'no-store' })
+    const res = await fetch(`${await getBaseUrl()}/api/tours/${id}`, { cache: 'no-store' })
     if (!res.ok) return null
     return res.json()
   } catch {
@@ -22,10 +23,19 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Hero */}
-      <div className="bg-gradient-to-r from-orange-600 to-amber-500 text-white py-14 px-4">
-        <div className="max-w-5xl mx-auto">
-          <Badge className="mb-3 bg-white/20 border-white/30 text-white">{tour.status}</Badge>
-          <h1 className="text-3xl sm:text-4xl font-bold mb-2">{tour.title}</h1>
+      <div className="relative text-white py-16 px-4 overflow-hidden">
+        {tour.image
+          ? <img src={tour.image} alt={tour.title} className="absolute inset-0 w-full h-full object-cover" />
+          : <div className="absolute inset-0 bg-gradient-to-br from-orange-600 to-amber-500" />}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/55 to-black/30" />
+        <div className="relative max-w-5xl mx-auto">
+          <div className="flex gap-2 mb-3">
+            <Badge className="bg-white/20 border-white/30 text-white capitalize">{tour.status}</Badge>
+            <Badge className={`border-white/30 text-white ${tour.category === 'leisure' ? 'bg-emerald-600/80' : 'bg-orange-600/80'}`}>
+              {tour.category === 'leisure' ? '🏔️ Holiday Trip' : '🛕 Spiritual Yatra'}
+            </Badge>
+          </div>
+          <h1 className="text-3xl sm:text-4xl font-bold mb-2 drop-shadow">{tour.title}</h1>
           <p className="text-orange-100 flex items-center gap-2"><MapPin size={16} />{tour.route}</p>
         </div>
       </div>
@@ -115,7 +125,7 @@ export default async function TourDetailPage({ params }: { params: Promise<{ id:
               <Users size={14} />{tour.availableSeats} seats left
             </div>
 
-            <BookingForm tourId={tour._id} tourTitle={tour.title} price={tour.price} />
+            <BookingForm tourId={tour._id} tourTitle={tour.title} price={tour.price} qrImage={tour.qrImage} paymentNote={tour.paymentNote} />
 
             <div className="mt-4 pt-4 border-t border-gray-100 space-y-2">
               <a href="tel:9773834051" className="flex items-center justify-center gap-2 w-full py-2.5 border border-orange-300 text-orange-600 rounded-lg text-sm font-medium hover:bg-orange-50 transition-colors">
