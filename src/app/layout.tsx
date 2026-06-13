@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist } from "next/font/google";
+import { Geist, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -7,9 +7,15 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
+const playfair = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+});
+
 export const metadata: Metadata = {
-  title: "Vedika Spiritual Travels - Yatra & Pilgrimage Tours",
-  description: "Join us for spiritual yatras to Khatu Shyam Ji, Salasar Balaji, Rani Sati and more. 1000+ satisfied devotees.",
+  title: "Vedika Travels — Spiritual Yatras & Holiday Trips",
+  description: "Spiritual yatras to Khatu Shyam Ji, Vrindavan & Haridwar plus holiday trips to Manali, Mussoorie, Rishikesh & Dehradun. 1000+ happy travellers.",
 };
 
 export default function RootLayout({
@@ -19,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${playfair.variable} antialiased`}>
         {children}
       </body>
     </html>

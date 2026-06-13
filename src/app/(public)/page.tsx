@@ -164,7 +164,7 @@ export default async function HomePage() {
 function ShowcaseSection({ title, subtitle, tours, muted }: { title: string; subtitle: string; tours: any[]; muted?: boolean }) {
   if (tours.length === 0) return null
   return (
-    <section className={`py-16 px-4 ${muted ? 'bg-gray-50' : ''}`}>
+    <section className={`py-16 px-4 ${muted ? 'bg-[#fbf3e7]' : ''}`}>
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10">
           <h2 className="text-3xl font-bold text-gray-800 mb-2">{title}</h2>
