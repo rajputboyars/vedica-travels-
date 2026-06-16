@@ -36,7 +36,7 @@ export default async function HomePage() {
             🙏 जय श्री श्याम | 1000+ happy travellers
           </Badge>
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold mb-4 leading-tight drop-shadow-lg">
-            Vedika Spiritual Travels
+            Parth Saarthi Travels
           </h1>
           <p className="text-xl sm:text-2xl text-orange-100 mb-2 font-medium">आपकी सेवा, हमारा सौभाग्य</p>
           <p className="text-orange-100 mb-8 max-w-2xl mx-auto text-lg">

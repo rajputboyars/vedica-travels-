@@ -15,7 +15,7 @@ export default function Navbar() {
               <span className="text-orange-600 font-bold text-lg">🙏</span>
             </div>
             <div>
-              <div className="font-bold text-lg leading-tight">Vedika Spiritual</div>
+              <div className="font-bold text-lg leading-tight">Parth Saarthi</div>
               <div className="text-xs text-orange-200 leading-tight">Travels</div>
             </div>
           </Link>

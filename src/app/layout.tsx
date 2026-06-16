@@ -14,7 +14,7 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Vedika Travels — Spiritual Yatras & Holiday Trips",
+  title: "Parth Saarthi Travels — Spiritual Yatras & Holiday Trips",
   description: "Spiritual yatras to Khatu Shyam Ji, Vrindavan & Haridwar plus holiday trips to Manali, Mussoorie, Rishikesh & Dehradun. 1000+ happy travellers.",
 };
 

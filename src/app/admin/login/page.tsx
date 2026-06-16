@@ -33,7 +33,7 @@ export default function AdminLoginPage() {
             <Lock size={28} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800">Admin Login</h1>
-          <p className="text-gray-500 text-sm mt-1">Vedika Spiritual Travels</p>
+          <p className="text-gray-500 text-sm mt-1">Parth Saarthi Travels</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">

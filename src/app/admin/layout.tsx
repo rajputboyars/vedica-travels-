@@ -33,7 +33,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <div className="flex items-center gap-3">
             <span className="text-2xl">🙏</span>
             <div>
-              <div className="font-bold text-sm">Vedika Spiritual</div>
+              <div className="font-bold text-sm">Parth Saarthi</div>
               <div className="text-xs text-gray-400">Admin Panel</div>
             </div>
           </div>
@@ -76,7 +76,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Menu size={22} className="text-gray-600" />
           </button>
           <h1 className="text-lg font-semibold text-gray-800">Admin Panel</h1>
-          <div className="ml-auto text-sm text-gray-500">Vedika Spiritual Travels</div>
+          <div className="ml-auto text-sm text-gray-500">Parth Saarthi Travels</div>
         </header>
         <main className="flex-1 overflow-auto p-6">
           {children}

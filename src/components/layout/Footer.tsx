@@ -9,7 +9,7 @@ export default function Footer() {
           <div className="flex items-center gap-2 mb-4">
             <span className="text-2xl">🙏</span>
             <div>
-              <div className="text-white font-bold text-lg">Vedika Spiritual Travels</div>
+              <div className="text-white font-bold text-lg">Parth Saarthi Travels</div>
               <div className="text-orange-400 text-xs">आपकी सेवा, हमारा सौभाग्य</div>
             </div>
           </div>
@@ -46,7 +46,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-gray-800 py-4 text-center text-xs text-gray-500">
-        © 2024 Vedika Spiritual Travels. All rights reserved. | YOGESH THAKUR
+        © 2026 Parth Saarthi Travels. All rights reserved. | YOGESH THAKUR
       </div>
     </footer>
   )

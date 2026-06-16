@@ -12,9 +12,9 @@ export default function AboutPage() {
       <div className="max-w-5xl mx-auto px-4 py-12 space-y-12">
         <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
           <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">🙏 Vedika Spiritual Travels</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">🙏 Parth Saarthi Travels</h2>
             <p className="text-gray-600 leading-relaxed mb-4">
-              Founded by <strong>YOGESH THAKUR</strong>, Vedika Spiritual Travels has been serving thousands of devotees on their sacred pilgrimage journeys.
+              Founded by <strong>YOGESH THAKUR</strong>, Parth Saarthi Travels has been serving thousands of devotees on their sacred pilgrimage journeys.
               We believe every soul deserves a comfortable and memorable yatra experience.
             </p>
             <p className="text-gray-600 leading-relaxed">
