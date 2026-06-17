@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { DEMO_TOURS } from '@/lib/demo-data'
 
+export const dynamic = 'force-dynamic'
+
 const isDBConfigured = !!process.env.MONGODB_URI
 
 export async function GET() {

@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Phone, Trash2, CheckCircle, XCircle, ChevronDown, ChevronUp, User } from 'lucide-react'
+import ConfirmDialog from '@/components/ui/confirm-dialog'
 
 const idTypeLabels: Record<string, string> = {
   aadhar: 'Aadhar', pan: 'PAN', passport: 'Passport',
@@ -12,9 +13,11 @@ export default function AdminBookingsPage() {
   const [bookings, setBookings] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [pending, setPending] = useState<any | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   async function fetchBookings() {
-    const res = await fetch('/api/bookings')
+    const res = await fetch('/api/bookings', { cache: 'no-store' })
     const data = await res.json()
     setBookings(Array.isArray(data) ? data : [])
     setLoading(false)
@@ -25,9 +28,12 @@ export default function AdminBookingsPage() {
     fetchBookings()
   }
 
-  async function deleteBooking(id: string) {
-    if (!confirm('Delete this booking?')) return
-    await fetch(`/api/bookings/${id}`, { method: 'DELETE' })
+  async function confirmDelete() {
+    if (!pending) return
+    setDeleting(true)
+    await fetch(`/api/bookings/${pending._id}`, { method: 'DELETE' })
+    setDeleting(false)
+    setPending(null)
     fetchBookings()
   }
 
@@ -81,7 +87,7 @@ export default function AdminBookingsPage() {
                       </Button>
                     </>
                   )}
-                  <Button size="sm" variant="destructive" onClick={() => deleteBooking(b._id)}>
+                  <Button size="sm" variant="destructive" onClick={() => setPending(b)}>
                     <Trash2 size={14} />
                   </Button>
                   <button onClick={() => setExpanded(expanded === b._id ? null : b._id)} className="text-gray-400 hover:text-gray-600 p-1">
@@ -158,6 +164,15 @@ export default function AdminBookingsPage() {
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!pending}
+        title="Delete this booking?"
+        message={pending ? `${pending.name}'s booking (${pending.bookingRef || ''}) will be permanently removed.` : ''}
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setPending(null)}
+      />
     </div>
   )
 }

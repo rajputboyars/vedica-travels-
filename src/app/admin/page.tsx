@@ -4,6 +4,9 @@ import { isDBConfigured, getBookings } from '@/lib/demo-store'
 import { DEMO_TOURS } from '@/lib/demo-data'
 import Link from 'next/link'
 
+// Always read live data — never serve a cached/stale snapshot of the counts.
+export const dynamic = 'force-dynamic'
+
 async function getStats() {
   if (!isDBConfigured) {
     const bookings = getBookings()

@@ -3,21 +3,27 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Plus, Edit, Trash2, Calendar } from 'lucide-react'
+import ConfirmDialog from '@/components/ui/confirm-dialog'
 
 export default function AdminToursPage() {
   const [tours, setTours] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [pending, setPending] = useState<any | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   async function fetchTours() {
-    const res = await fetch('/api/tours')
+    const res = await fetch('/api/tours', { cache: 'no-store' })
     const data = await res.json()
     setTours(Array.isArray(data) ? data : [])
     setLoading(false)
   }
 
-  async function deleteTour(id: string) {
-    if (!confirm('Delete this tour?')) return
-    await fetch(`/api/tours/${id}`, { method: 'DELETE' })
+  async function confirmDelete() {
+    if (!pending) return
+    setDeleting(true)
+    await fetch(`/api/tours/${pending._id}`, { method: 'DELETE' })
+    setDeleting(false)
+    setPending(null)
     fetchTours()
   }
 
@@ -87,7 +93,7 @@ export default function AdminToursPage() {
                       <Link href={`/admin/tours/${tour._id}/edit`}>
                         <Button size="sm" variant="ghost"><Edit size={15} /></Button>
                       </Link>
-                      <Button size="sm" variant="destructive" onClick={() => deleteTour(tour._id)}>
+                      <Button size="sm" variant="destructive" onClick={() => setPending(tour)}>
                         <Trash2 size={15} />
                       </Button>
                     </div>
@@ -98,6 +104,15 @@ export default function AdminToursPage() {
           </table>
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!pending}
+        title="Delete this tour?"
+        message={pending ? `"${pending.title}" will be permanently removed.` : ''}
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setPending(null)}
+      />
     </div>
   )
 }

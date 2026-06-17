@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Trash2, Plus, Image as ImageIcon } from 'lucide-react'
+import ConfirmDialog from '@/components/ui/confirm-dialog'
 
 export default function AdminGalleryPage() {
   const [images, setImages] = useState<any[]>([])
@@ -9,6 +10,8 @@ export default function AdminGalleryPage() {
   const [newUrl, setNewUrl] = useState('')
   const [newCaption, setNewCaption] = useState('')
   const [adding, setAdding] = useState(false)
+  const [pending, setPending] = useState<any | null>(null)
+  const [deleting, setDeleting] = useState(false)
 
   async function fetchImages() {
     try {
@@ -34,9 +37,12 @@ export default function AdminGalleryPage() {
     fetchImages()
   }
 
-  async function deleteImage(id: string) {
-    if (!confirm('Delete this image?')) return
-    await fetch(`/api/gallery/${id}`, { method: 'DELETE' })
+  async function confirmDelete() {
+    if (!pending) return
+    setDeleting(true)
+    await fetch(`/api/gallery/${pending._id}`, { method: 'DELETE' })
+    setDeleting(false)
+    setPending(null)
     fetchImages()
   }
 
@@ -82,7 +88,7 @@ export default function AdminGalleryPage() {
               <div className="aspect-square bg-gray-100 relative">
                 <img src={img.url} alt={img.caption || 'Gallery'} className="w-full h-full object-cover" />
                 <button
-                  onClick={() => deleteImage(img._id)}
+                  onClick={() => setPending(img)}
                   className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <Trash2 size={12} />
@@ -93,6 +99,15 @@ export default function AdminGalleryPage() {
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!pending}
+        title="Delete this image?"
+        message="This image will be removed from the gallery."
+        loading={deleting}
+        onConfirm={confirmDelete}
+        onCancel={() => setPending(null)}
+      />
     </div>
   )
 }

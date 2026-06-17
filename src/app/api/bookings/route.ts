@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { isDBConfigured, getBookings, addBooking, genBookingRef } from '@/lib/demo-store'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   if (!isDBConfigured) {
     return NextResponse.json(getBookings())
