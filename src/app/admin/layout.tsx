@@ -1,9 +1,9 @@
 'use client'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { signOut } from 'next-auth/react'
+import { usePathname, useRouter } from 'next/navigation'
+import { SessionProvider, useSession, signOut } from 'next-auth/react'
 import { LayoutDashboard, Map, BookOpen, Image, Settings, LogOut, Menu, Users, IndianRupee } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
 
 const navItems = [
@@ -17,10 +17,39 @@ const navItems = [
 ]
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <AdminShell>{children}</AdminShell>
+    </SessionProvider>
+  )
+}
+
+function AdminShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
+  const { status } = useSession()
   const [sidebarOpen, setSidebarOpen] = useState(false)
 
-  if (pathname === '/admin/login') return <>{children}</>
+  const isLogin = pathname === '/admin/login'
+
+  // Client-side guard: redirect to login when not authenticated.
+  useEffect(() => {
+    if (!isLogin && status === 'unauthenticated') {
+      router.replace('/admin/login')
+    }
+  }, [isLogin, status, router])
+
+  // The login page renders without the dashboard chrome.
+  if (isLogin) return <>{children}</>
+
+  // While the session is resolving (or redirecting), show a light loader.
+  if (status !== 'authenticated') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100 text-gray-400 text-sm">
+        Loading…
+      </div>
+    )
+  }
 
   return (
     <div className="admin-shell flex h-screen bg-gray-100">
