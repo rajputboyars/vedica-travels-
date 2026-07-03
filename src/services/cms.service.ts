@@ -37,8 +37,19 @@ async function models() {
 }
 
 // ---- Site Settings (singleton) -----------------------------------------
+// Guarantees every field a consumer (public layout JSON-LD, Navbar,
+// Footer, admin CMS form) dereferences without an optional chain always
+// exists, even for documents written before a field existed or -- before
+// the model's `minimize: false` fix -- saved with an empty `social: {}`
+// that Mongoose then stripped from the stored document entirely. This is
+// the one place that normalizes, so every caller gets a safe shape for
+// free instead of scattering `settings.social || {}` guards everywhere.
+function normalizeSettings(settings: SiteSettings): SiteSettings {
+  return { ...settings, social: settings.social || {} }
+}
+
 export async function getSiteSettings(): Promise<SiteSettings> {
-  if (!isDBConfigured) return demoSettings.getSettings()
+  if (!isDBConfigured) return normalizeSettings(demoSettings.getSettings())
   try {
     const { SiteSettings: Model } = await models()
     let doc = await Model.findOne({})
@@ -51,19 +62,19 @@ export async function getSiteSettings(): Promise<SiteSettings> {
       void updatedAt
       doc = await Model.create(seedFields)
     }
-    return serialize(doc)
+    return normalizeSettings(serialize(doc))
   } catch {
-    return demoSettings.getSettings()
+    return normalizeSettings(demoSettings.getSettings())
   }
 }
 
 export async function updateSiteSettings(data: Partial<SiteSettingsInput>): Promise<SiteSettings> {
-  if (!isDBConfigured) return demoSettings.updateSettings(data)
+  if (!isDBConfigured) return normalizeSettings(demoSettings.updateSettings(data))
   const { SiteSettings: Model } = await models()
   let doc = await Model.findOne({})
   if (!doc) doc = await Model.create(data)
   else doc = await Model.findByIdAndUpdate(doc._id, data, { new: true, runValidators: true })
-  return serialize(doc!)
+  return normalizeSettings(serialize(doc!))
 }
 
 // ---- Homepage Content (singleton) --------------------------------------

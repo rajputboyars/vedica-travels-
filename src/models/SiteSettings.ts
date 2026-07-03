@@ -72,7 +72,14 @@ const SiteSettingsSchema = new Schema<ISiteSettings>(
       averageRating: { type: String, default: '' },
     },
   },
-  { timestamps: true }
+  // minimize: false -- by default Mongoose strips empty nested objects
+  // (e.g. `social: {}` when no admin has set any social link yet) before
+  // saving. That stripped the whole `social` key from the document, so
+  // any later read got `settings.social === undefined` instead of `{}`,
+  // crashing `Object.values(settings.social)` in the public layout and
+  // the admin settings form. Keeping the key (even empty) matches what
+  // the demo store always returns and is what every consumer expects.
+  { timestamps: true, minimize: false }
 )
 
 export default mongoose.models.SiteSettings || mongoose.model<ISiteSettings>('SiteSettings', SiteSettingsSchema)

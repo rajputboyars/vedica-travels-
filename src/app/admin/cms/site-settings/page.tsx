@@ -141,19 +141,19 @@ export default function AdminSiteSettingsPage() {
         <CardContent className="grid grid-cols-2 gap-3">
           <div>
             <label className={labelClass}>Instagram URL</label>
-            <input className={inputClass} value={settings.social.instagram || ''} onChange={(e) => setSettings({ ...settings, social: { ...settings.social, instagram: e.target.value } })} />
+            <input className={inputClass} value={settings.social?.instagram || ''} onChange={(e) => setSettings({ ...settings, social: { ...settings.social, instagram: e.target.value } })} />
           </div>
           <div>
             <label className={labelClass}>Facebook URL</label>
-            <input className={inputClass} value={settings.social.facebook || ''} onChange={(e) => setSettings({ ...settings, social: { ...settings.social, facebook: e.target.value } })} />
+            <input className={inputClass} value={settings.social?.facebook || ''} onChange={(e) => setSettings({ ...settings, social: { ...settings.social, facebook: e.target.value } })} />
           </div>
           <div>
             <label className={labelClass}>YouTube URL</label>
-            <input className={inputClass} value={settings.social.youtube || ''} onChange={(e) => setSettings({ ...settings, social: { ...settings.social, youtube: e.target.value } })} />
+            <input className={inputClass} value={settings.social?.youtube || ''} onChange={(e) => setSettings({ ...settings, social: { ...settings.social, youtube: e.target.value } })} />
           </div>
           <div>
             <label className={labelClass}>Twitter/X URL</label>
-            <input className={inputClass} value={settings.social.twitter || ''} onChange={(e) => setSettings({ ...settings, social: { ...settings.social, twitter: e.target.value } })} />
+            <input className={inputClass} value={settings.social?.twitter || ''} onChange={(e) => setSettings({ ...settings, social: { ...settings.social, twitter: e.target.value } })} />
           </div>
         </CardContent>
       </Card>

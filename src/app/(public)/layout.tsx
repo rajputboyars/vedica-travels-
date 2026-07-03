@@ -28,7 +28,7 @@ export default async function PublicLayout({ children }: { children: React.React
     telephone: settings.contact.primaryPhone,
     email: settings.contact.email,
     address: { '@type': 'PostalAddress', streetAddress: settings.address.line1, addressLocality: settings.address.line2 },
-    sameAs: Object.values(settings.social).filter(Boolean),
+    sameAs: Object.values(settings.social || {}).filter(Boolean),
   }
 
   return (
