@@ -1,35 +1,25 @@
 'use client'
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Users, ChevronRight, Calendar } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
+import { useFetch } from '@/hooks/use-fetch'
+import type { Tour, Booking } from '@/types'
 
 export default function AdminPassengersPage() {
-  const [tours, setTours] = useState<any[]>([])
-  const [bookings, setBookings] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function load() {
-      const [tr, bk] = await Promise.all([
-        fetch('/api/tours').then(r => r.json()),
-        fetch('/api/bookings').then(r => r.json()),
-      ])
-      setTours(Array.isArray(tr) ? tr : [])
-      setBookings(Array.isArray(bk) ? bk : [])
-      setLoading(false)
-    }
-    load()
-  }, [])
+  const { data: tours, loading: toursLoading } = useFetch<Tour[]>('/api/tours', [])
+  const { data: bookings, loading: bookingsLoading } = useFetch<Booking[]>('/api/bookings', [])
+  const loading = toursLoading || bookingsLoading
 
   if (loading) return <div className="text-center py-12 text-gray-400">Loading...</div>
 
-  const toursWithCounts = tours.map((tour: any) => {
-    const tourBookings = bookings.filter((b: any) => b.tourId === tour._id || b.tourId?._id === tour._id)
-    const totalPassengers = tourBookings.reduce((sum: number, b: any) => sum + (b.passengers?.length || b.numPersons || 0), 0)
-    const confirmed = tourBookings.filter((b: any) => b.status === 'confirmed').length
-    return { ...tour, totalBookings: tourBookings.length, totalPassengers, confirmed }
-  }).filter((t: any) => t.totalBookings > 0 || t.status === 'upcoming')
+  const toursWithCounts = tours
+    .map((tour) => {
+      const tourBookings = bookings.filter((b) => b.tourId === tour._id || (b.tourId as unknown as { _id: string })?._id === tour._id)
+      const totalPassengers = tourBookings.reduce((sum, b) => sum + (b.passengers?.length || b.numPersons || 0), 0)
+      const confirmed = tourBookings.filter((b) => b.status === 'confirmed').length
+      return { ...tour, totalBookings: tourBookings.length, totalPassengers, confirmed }
+    })
+    .filter((t) => t.totalBookings > 0 || t.status === 'upcoming')
 
   return (
     <div className="space-y-6">
@@ -45,7 +35,7 @@ export default function AdminPassengersPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {toursWithCounts.map((tour: any) => (
+          {toursWithCounts.map((tour) => (
             <Link key={tour._id} href={`/admin/passengers/${tour._id}`}>
               <Card className="hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="p-5 flex items-center justify-between">

@@ -2,28 +2,19 @@
 import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, User, Phone, CheckCircle2, XCircle, Clock, Download, UserPlus } from 'lucide-react'
+import { ArrowLeft, Phone, CheckCircle2, XCircle, Download, UserPlus } from 'lucide-react'
 import { downloadCSV, bookingsToRows } from '@/lib/export'
-
-const attendanceStyles: Record<string, string> = {
-  present: 'bg-green-100 text-green-700 border-green-200',
-  absent: 'bg-red-100 text-red-700 border-red-200',
-  not_marked: 'bg-gray-100 text-gray-500 border-gray-200',
-}
-
-const idTypeLabels: Record<string, string> = {
-  aadhar: 'Aadhar', pan: 'PAN', passport: 'Passport',
-  driving_license: 'DL', voter_id: 'Voter ID',
-}
+import { idTypeLabels, type Tour, type Booking, type Attendance } from '@/types'
+import AttendanceBadge from '@/features/passengers/components/AttendanceBadge'
 
 export default function TourPassengersPage() {
   const { tourId } = useParams() as { tourId: string }
   const router = useRouter()
-  const [tour, setTour] = useState<any>(null)
-  const [bookings, setBookings] = useState<any[]>([])
+  const [tour, setTour] = useState<Tour | null>(null)
+  const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [updating, setUpdating] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState<'all' | 'present' | 'absent' | 'not_marked'>('all')
+  const [activeTab, setActiveTab] = useState<'all' | Attendance>('all')
   const [showWalkIn, setShowWalkIn] = useState(false)
   const [walkIn, setWalkIn] = useState({ name: '', phone: '', age: '', gender: 'male', idType: 'aadhar', idNumber: '', amountPaid: '' })
   const [savingWalkIn, setSavingWalkIn] = useState(false)
@@ -38,7 +29,7 @@ export default function TourPassengersPage() {
     setLoading(false)
   }
 
-  async function markAttendance(bookingId: string, passengerIndex: number, attendance: string) {
+  async function markAttendance(bookingId: string, passengerIndex: number, attendance: Attendance) {
     const key = `${bookingId}-${passengerIndex}`
     setUpdating(key)
     await fetch(`/api/bookings/${bookingId}/attendance`, {
@@ -96,25 +87,24 @@ export default function TourPassengersPage() {
     downloadCSV(`passengers-${safe}`, bookingsToRows(bookings))
   }
 
-  useEffect(() => { load() }, [tourId])
+  useEffect(() => { load() }, [tourId]) // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
 
   if (loading) return <div className="text-center py-12 text-gray-400">Loading...</div>
 
-  const allPassengers = bookings.flatMap((b: any) =>
-    (b.passengers || []).map((p: any, idx: number) => ({
+  const allPassengers = bookings.flatMap((b) =>
+    (b.passengers || []).map((p, idx) => ({
       ...p, bookingId: b._id, bookingIdx: idx,
       contactName: b.name, contactPhone: b.phone,
-      bookingStatus: b.status, totalAmount: b.totalAmount,
     }))
   )
 
-  const filtered = activeTab === 'all' ? allPassengers : allPassengers.filter(p => p.attendance === activeTab)
+  const filtered = activeTab === 'all' ? allPassengers : allPassengers.filter((p) => p.attendance === activeTab)
 
   const stats = {
     total: allPassengers.length,
-    present: allPassengers.filter(p => p.attendance === 'present').length,
-    absent: allPassengers.filter(p => p.attendance === 'absent').length,
-    not_marked: allPassengers.filter(p => p.attendance === 'not_marked').length,
+    present: allPassengers.filter((p) => p.attendance === 'present').length,
+    absent: allPassengers.filter((p) => p.attendance === 'absent').length,
+    not_marked: allPassengers.filter((p) => p.attendance === 'not_marked').length,
   }
 
   return (
@@ -129,26 +119,25 @@ export default function TourPassengersPage() {
         </div>
         <div className="flex gap-2">
           <Button size="sm" variant="outline" onClick={exportCsv}><Download size={14} className="mr-1" /> Export</Button>
-          <Button size="sm" onClick={() => setShowWalkIn(v => !v)}><UserPlus size={14} className="mr-1" /> Add Walk-in</Button>
+          <Button size="sm" onClick={() => setShowWalkIn((v) => !v)}><UserPlus size={14} className="mr-1" /> Add Walk-in</Button>
         </div>
       </div>
 
-      {/* Walk-in form */}
       {showWalkIn && (
         <div className="bg-white rounded-xl shadow-sm p-5 border border-orange-100">
           <h3 className="font-semibold text-gray-800 mb-3">Add Walk-in Passenger</h3>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Full name *" value={walkIn.name} onChange={e => setWalkIn({ ...walkIn, name: e.target.value })} />
-            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Phone *" value={walkIn.phone} onChange={e => setWalkIn({ ...walkIn, phone: e.target.value })} />
-            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" type="number" placeholder="Age" value={walkIn.age} onChange={e => setWalkIn({ ...walkIn, age: e.target.value })} />
-            <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm" value={walkIn.gender} onChange={e => setWalkIn({ ...walkIn, gender: e.target.value })}>
+            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Full name *" value={walkIn.name} onChange={(e) => setWalkIn({ ...walkIn, name: e.target.value })} />
+            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Phone *" value={walkIn.phone} onChange={(e) => setWalkIn({ ...walkIn, phone: e.target.value })} />
+            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" type="number" placeholder="Age" value={walkIn.age} onChange={(e) => setWalkIn({ ...walkIn, age: e.target.value })} />
+            <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm" value={walkIn.gender} onChange={(e) => setWalkIn({ ...walkIn, gender: e.target.value })}>
               <option value="male">Male</option><option value="female">Female</option><option value="other">Other</option>
             </select>
-            <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm" value={walkIn.idType} onChange={e => setWalkIn({ ...walkIn, idType: e.target.value })}>
+            <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm" value={walkIn.idType} onChange={(e) => setWalkIn({ ...walkIn, idType: e.target.value })}>
               <option value="aadhar">Aadhar</option><option value="pan">PAN</option><option value="passport">Passport</option><option value="driving_license">DL</option><option value="voter_id">Voter ID</option>
             </select>
-            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="ID number" value={walkIn.idNumber} onChange={e => setWalkIn({ ...walkIn, idNumber: e.target.value })} />
-            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" type="number" placeholder="Amount paid (cash)" value={walkIn.amountPaid} onChange={e => setWalkIn({ ...walkIn, amountPaid: e.target.value })} />
+            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="ID number" value={walkIn.idNumber} onChange={(e) => setWalkIn({ ...walkIn, idNumber: e.target.value })} />
+            <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" type="number" placeholder="Amount paid (cash)" value={walkIn.amountPaid} onChange={(e) => setWalkIn({ ...walkIn, amountPaid: e.target.value })} />
           </div>
           <div className="flex gap-2 mt-3">
             <Button size="sm" onClick={addWalkIn} disabled={savingWalkIn || !walkIn.name || !walkIn.phone}>{savingWalkIn ? 'Adding...' : 'Add Passenger'}</Button>
@@ -157,7 +146,6 @@ export default function TourPassengersPage() {
         </div>
       )}
 
-      {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: 'Total', value: stats.total, color: 'bg-blue-50 border-blue-200 text-blue-700' },
@@ -172,7 +160,6 @@ export default function TourPassengersPage() {
         ))}
       </div>
 
-      {/* Quick Actions */}
       {allPassengers.length > 0 && (
         <div className="flex flex-wrap gap-2 bg-white rounded-xl shadow-sm p-4">
           <span className="text-sm text-gray-500 font-medium self-center">Quick Mark:</span>
@@ -185,9 +172,8 @@ export default function TourPassengersPage() {
         </div>
       )}
 
-      {/* Filter Tabs */}
       <div className="flex gap-2 bg-white rounded-xl shadow-sm p-1 w-fit">
-        {(['all', 'present', 'absent', 'not_marked'] as const).map(tab => (
+        {(['all', 'present', 'absent', 'not_marked'] as const).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -203,7 +189,6 @@ export default function TourPassengersPage() {
         ))}
       </div>
 
-      {/* Passenger List */}
       {filtered.length === 0 ? (
         <div className="text-center py-12 bg-white rounded-xl shadow-sm text-gray-400">
           No passengers in this category
@@ -248,14 +233,7 @@ export default function TourPassengersPage() {
                       <Phone size={10} /> {p.contactPhone}
                     </a>
                   </td>
-                  <td className="px-5 py-4">
-                    <span className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-full border font-medium ${attendanceStyles[p.attendance || 'not_marked']}`}>
-                      {p.attendance === 'present' ? <CheckCircle2 size={11} /> :
-                       p.attendance === 'absent' ? <XCircle size={11} /> :
-                       <Clock size={11} />}
-                      {p.attendance === 'not_marked' ? 'Not Marked' : p.attendance}
-                    </span>
-                  </td>
+                  <td className="px-5 py-4"><AttendanceBadge attendance={p.attendance} /></td>
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-1">
                       {updating === `${p.bookingId}-${p.bookingIdx}` ? (
@@ -289,12 +267,11 @@ export default function TourPassengersPage() {
         </div>
       )}
 
-      {/* Bookings breakdown */}
       {bookings.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm p-5">
           <h3 className="font-semibold text-gray-800 mb-4">Booking Details</h3>
           <div className="space-y-3">
-            {bookings.map((b: any, i: number) => (
+            {bookings.map((b) => (
               <div key={b._id} className="border border-gray-100 rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div>
@@ -313,12 +290,11 @@ export default function TourPassengersPage() {
                 </div>
                 {b.address && <p className="text-xs text-gray-400 mb-2">📍 {b.address}</p>}
                 {b.emergencyContact && <p className="text-xs text-gray-400 mb-2">🆘 {b.emergencyContact} — {b.emergencyPhone}</p>}
-                {b.message && <p className="text-xs text-gray-500 italic mb-2">"{b.message}"</p>}
+                {b.message && <p className="text-xs text-gray-500 italic mb-2">&quot;{b.message}&quot;</p>}
                 <div className="flex gap-2 flex-wrap">
-                  {(b.passengers || []).map((p: any, pi: number) => (
-                    <span key={pi} className={`text-xs px-2 py-1 rounded-full border ${attendanceStyles[p.attendance || 'not_marked']}`}>
-                      {p.name} ({p.age}
-                      {p.gender === 'female' ? '♀' : '♂'})
+                  {(b.passengers || []).map((p, pi) => (
+                    <span key={pi} className="text-xs px-2 py-1 rounded-full border bg-gray-50 border-gray-200 text-gray-600">
+                      {p.name} ({p.age}{p.gender === 'female' ? '♀' : '♂'})
                     </span>
                   ))}
                 </div>

@@ -1,5 +1,15 @@
+import type { Metadata } from 'next'
 import { Users, Star, Bus, MapPin } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
+import { siteConfig } from '@/config/site'
+
+export const metadata: Metadata = {
+  // Root layout's title.template appends " | <siteName>" (app/layout.tsx),
+  // so this is just the page-specific segment.
+  title: 'About Us',
+  description: `Learn about ${siteConfig.name} — ${siteConfig.stats.happyTravellers} happy devotees served on spiritual yatras and holiday trips.`,
+  openGraph: { title: 'About Us', description: `The story of service and devotion behind ${siteConfig.name}.` },
+}
 
 export default function AboutPage() {
   return (
@@ -12,18 +22,18 @@ export default function AboutPage() {
       <div className="max-w-5xl mx-auto px-4 py-12 space-y-12">
         <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
           <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">🙏 Parth Saarthi Travels</h2>
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">{siteConfig.emoji} {siteConfig.name}</h2>
             <p className="text-gray-600 leading-relaxed mb-4">
-              Founded by <strong>YOGESH THAKUR</strong>, Parth Saarthi Travels has been serving thousands of devotees on their sacred pilgrimage journeys.
+              Founded by <strong>{siteConfig.founder}</strong>, {siteConfig.name} has been serving thousands of devotees on their sacred pilgrimage journeys.
               We believe every soul deserves a comfortable and memorable yatra experience.
             </p>
             <p className="text-gray-600 leading-relaxed">
-              Our tagline — <em>&quot;आपकी सेवा, हमारा सौभाग्य&quot;</em> (Your service, our privilege) — reflects our commitment to making every journey a divine experience.
+              Our tagline — <em>&quot;{siteConfig.tagline}&quot;</em> ({siteConfig.taglineEn}) — reflects our commitment to making every journey a divine experience.
             </p>
           </div>
           <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-8 text-center">
             <div className="text-7xl mb-4">🛕</div>
-            <div className="text-4xl font-bold text-orange-600 mb-1">1000+</div>
+            <div className="text-4xl font-bold text-orange-600 mb-1">{siteConfig.stats.happyTravellers}</div>
             <div className="text-gray-600">Happy Devotees Served</div>
           </div>
         </section>

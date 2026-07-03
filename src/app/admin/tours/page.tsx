@@ -1,39 +1,28 @@
 'use client'
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Plus, Edit, Trash2, Calendar } from 'lucide-react'
 import ConfirmDialog from '@/components/ui/confirm-dialog'
+import { useFetch } from '@/hooks/use-fetch'
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
+import type { Tour } from '@/types'
+
+const statusColor: Record<string, string> = {
+  upcoming: 'bg-green-100 text-green-700',
+  ongoing: 'bg-blue-100 text-blue-700',
+  completed: 'bg-gray-100 text-gray-700',
+  cancelled: 'bg-red-100 text-red-700',
+}
 
 export default function AdminToursPage() {
-  const [tours, setTours] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [pending, setPending] = useState<any | null>(null)
-  const [deleting, setDeleting] = useState(false)
+  const { data: tours, loading, refetch } = useFetch<Tour[]>('/api/tours', [])
+  const confirmDialog = useConfirmDialog<Tour>()
 
-  async function fetchTours() {
-    const res = await fetch('/api/tours', { cache: 'no-store' })
-    const data = await res.json()
-    setTours(Array.isArray(data) ? data : [])
-    setLoading(false)
-  }
-
-  async function confirmDelete() {
-    if (!pending) return
-    setDeleting(true)
-    await fetch(`/api/tours/${pending._id}`, { method: 'DELETE' })
-    setDeleting(false)
-    setPending(null)
-    fetchTours()
-  }
-
-  useEffect(() => { fetchTours() }, [])
-
-  const statusColor: Record<string, string> = {
-    upcoming: 'bg-green-100 text-green-700',
-    ongoing: 'bg-blue-100 text-blue-700',
-    completed: 'bg-gray-100 text-gray-700',
-    cancelled: 'bg-red-100 text-red-700',
+  async function handleDelete() {
+    await confirmDialog.confirm(async (tour) => {
+      await fetch(`/api/tours/${tour._id}`, { method: 'DELETE' })
+      refetch()
+    })
   }
 
   return (
@@ -93,7 +82,7 @@ export default function AdminToursPage() {
                       <Link href={`/admin/tours/${tour._id}/edit`}>
                         <Button size="sm" variant="ghost"><Edit size={15} /></Button>
                       </Link>
-                      <Button size="sm" variant="destructive" onClick={() => setPending(tour)}>
+                      <Button size="sm" variant="destructive" onClick={() => confirmDialog.ask(tour)}>
                         <Trash2 size={15} />
                       </Button>
                     </div>
@@ -106,12 +95,12 @@ export default function AdminToursPage() {
       )}
 
       <ConfirmDialog
-        open={!!pending}
+        open={confirmDialog.isOpen}
         title="Delete this tour?"
-        message={pending ? `"${pending.title}" will be permanently removed.` : ''}
-        loading={deleting}
-        onConfirm={confirmDelete}
-        onCancel={() => setPending(null)}
+        message={confirmDialog.pending ? `"${confirmDialog.pending.title}" will be permanently removed.` : ''}
+        loading={confirmDialog.loading}
+        onConfirm={handleDelete}
+        onCancel={confirmDialog.cancel}
       />
     </div>
   )

@@ -1,28 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { isDBConfigured, getBooking, updateBooking } from '@/lib/demo-store'
+import { updatePayment } from '@/services/booking.service'
 
 // Updates payment fields on a booking. Used by the public screenshot upload
-// and by the admin payment-management section.
-const allowed = ['paymentStatus', 'amountPaid', 'paymentMethod', 'paymentRef', 'paymentScreenshot', 'paymentNote', 'status']
-
+// step and by the admin payment-management section. Field allowlisting
+// lives in the service so both callers get the same protection.
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const body = await req.json()
-  const update: Record<string, unknown> = {}
-  for (const key of allowed) {
-    if (key in body) update[key] = body[key]
-  }
-
-  if (!isDBConfigured) {
-    const booking = updateBooking(id, update)
-    if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
-    return NextResponse.json(booking)
-  }
   try {
-    const { default: connectDB } = await import('@/lib/mongodb')
-    const { default: Booking } = await import('@/models/Booking')
-    await connectDB()
-    const booking = await Booking.findByIdAndUpdate(id, update, { new: true })
+    const body = await req.json()
+    const booking = await updatePayment(id, body)
     if (!booking) return NextResponse.json({ error: 'Booking not found' }, { status: 404 })
     return NextResponse.json(booking)
   } catch {

@@ -7,10 +7,13 @@ export interface IGallery extends Document {
   createdAt: Date
 }
 
-const GallerySchema = new Schema<IGallery>({
-  url: { type: String, required: true },
-  caption: { type: String },
-  tourId: { type: Schema.Types.ObjectId, ref: 'Tour' },
-}, { timestamps: true })
+const GallerySchema = new Schema<IGallery>(
+  {
+    url: { type: String, required: true },
+    caption: { type: String },
+    tourId: { type: Schema.Types.ObjectId, ref: 'Tour' },
+  },
+  { timestamps: true }
+)
 
 export default mongoose.models.Gallery || mongoose.model<IGallery>('Gallery', GallerySchema)

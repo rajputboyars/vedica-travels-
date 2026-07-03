@@ -1,40 +1,29 @@
 'use client'
-import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { IndianRupee, ChevronRight, Calendar, AlertCircle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
+import { useFetch } from '@/hooks/use-fetch'
+import type { Tour, Booking } from '@/types'
 
 export default function AdminPaymentsPage() {
-  const [tours, setTours] = useState<any[]>([])
-  const [bookings, setBookings] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    async function load() {
-      const [tr, bk] = await Promise.all([
-        fetch('/api/tours').then(r => r.json()),
-        fetch('/api/bookings').then(r => r.json()),
-      ])
-      setTours(Array.isArray(tr) ? tr : [])
-      setBookings(Array.isArray(bk) ? bk : [])
-      setLoading(false)
-    }
-    load()
-  }, [])
+  const { data: tours, loading: toursLoading } = useFetch<Tour[]>('/api/tours', [])
+  const { data: bookings, loading: bookingsLoading } = useFetch<Booking[]>('/api/bookings', [])
+  const loading = toursLoading || bookingsLoading
 
   if (loading) return <div className="text-center py-12 text-gray-400">Loading...</div>
 
-  const rows = tours.map((tour: any) => {
-    const tb = bookings.filter((b: any) => b.tourId === tour._id || b.tourId?._id === tour._id)
-    const collected = tb.reduce((s: number, b: any) => s + (b.paymentStatus === 'confirmed' ? (b.amountPaid || 0) : 0), 0)
-    const expected = tb.reduce((s: number, b: any) => s + (b.totalAmount || 0), 0)
-    const pending = tb.filter((b: any) => b.paymentStatus === 'pending' || b.paymentStatus === 'screenshot_received').length
-    const toVerify = tb.filter((b: any) => b.paymentStatus === 'screenshot_received').length
-    return { ...tour, count: tb.length, collected, expected, pending, toVerify }
-  }).filter((t: any) => t.count > 0 || t.status === 'upcoming')
+  const rows = tours
+    .map((tour) => {
+      const tb = bookings.filter((b) => b.tourId === tour._id || (b.tourId as unknown as { _id: string })?._id === tour._id)
+      const collected = tb.reduce((s, b) => s + (b.paymentStatus === 'confirmed' ? b.amountPaid || 0 : 0), 0)
+      const expected = tb.reduce((s, b) => s + (b.totalAmount || 0), 0)
+      const toVerify = tb.filter((b) => b.paymentStatus === 'screenshot_received').length
+      return { ...tour, count: tb.length, collected, expected, toVerify }
+    })
+    .filter((t) => t.count > 0 || t.status === 'upcoming')
 
-  const totalCollected = rows.reduce((s: number, t: any) => s + t.collected, 0)
-  const totalToVerify = rows.reduce((s: number, t: any) => s + t.toVerify, 0)
+  const totalCollected = rows.reduce((s, t) => s + t.collected, 0)
+  const totalToVerify = rows.reduce((s, t) => s + t.toVerify, 0)
 
   return (
     <div className="space-y-6">
@@ -62,7 +51,7 @@ export default function AdminPaymentsPage() {
         <div className="text-center py-12 bg-white rounded-xl shadow-sm text-gray-400">No trips with payments yet</div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {rows.map((tour: any) => (
+          {rows.map((tour) => (
             <Link key={tour._id} href={`/admin/payments/${tour._id}`}>
               <Card className="hover:shadow-md transition-shadow cursor-pointer">
                 <CardContent className="p-5">

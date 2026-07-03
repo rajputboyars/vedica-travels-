@@ -1,33 +1,34 @@
 import mongoose, { Schema, Document } from 'mongoose'
+import type { Gender, IdType, Attendance, BookingStatus, PaymentStatus } from '@/types'
 
+// Same schema as the working app — see note in Tour.ts about backward
+// compatibility. Passengers are embedded (not a separate collection)
+// because they never exist independent of a booking.
 export interface IPassenger {
   name: string
   age: number
-  gender: 'male' | 'female' | 'other'
-  idType: 'aadhar' | 'pan' | 'passport' | 'driving_license' | 'voter_id'
+  gender: Gender
+  idType: IdType
   idNumber: string
-  attendance: 'present' | 'absent' | 'not_marked'
+  attendance: Attendance
 }
 
 export interface IBooking extends Document {
   bookingRef: string
   tourId: mongoose.Types.ObjectId
   tourTitle: string
-  // Lead contact
   name: string
   phone: string
   email?: string
   address?: string
   emergencyContact?: string
   emergencyPhone?: string
-  // Passengers
   passengers: IPassenger[]
   numPersons: number
   message?: string
-  status: 'pending' | 'confirmed' | 'cancelled'
+  status: BookingStatus
   totalAmount?: number
-  // Payment
-  paymentStatus: 'pending' | 'screenshot_received' | 'confirmed' | 'rejected'
+  paymentStatus: PaymentStatus
   amountPaid: number
   paymentMethod?: string
   paymentRef?: string
@@ -46,29 +47,31 @@ const PassengerSchema = new Schema<IPassenger>({
   attendance: { type: String, enum: ['present', 'absent', 'not_marked'], default: 'not_marked' },
 })
 
-const BookingSchema = new Schema<IBooking>({
-  bookingRef: { type: String, index: true },
-  tourId: { type: Schema.Types.ObjectId, ref: 'Tour', required: true },
-  tourTitle: { type: String, required: true },
-  name: { type: String, required: true },
-  phone: { type: String, required: true },
-  email: { type: String },
-  address: { type: String },
-  emergencyContact: { type: String },
-  emergencyPhone: { type: String },
-  passengers: [PassengerSchema],
-  numPersons: { type: Number, required: true, default: 1 },
-  message: { type: String },
-  status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
-  totalAmount: { type: Number },
-  // Payment
-  paymentStatus: { type: String, enum: ['pending', 'screenshot_received', 'confirmed', 'rejected'], default: 'pending' },
-  amountPaid: { type: Number, default: 0 },
-  paymentMethod: { type: String },
-  paymentRef: { type: String },
-  paymentScreenshot: { type: String },
-  paymentNote: { type: String },
-  isWalkIn: { type: Boolean, default: false },
-}, { timestamps: true })
+const BookingSchema = new Schema<IBooking>(
+  {
+    bookingRef: { type: String, index: true },
+    tourId: { type: Schema.Types.ObjectId, ref: 'Tour', required: true },
+    tourTitle: { type: String, required: true },
+    name: { type: String, required: true },
+    phone: { type: String, required: true },
+    email: { type: String },
+    address: { type: String },
+    emergencyContact: { type: String },
+    emergencyPhone: { type: String },
+    passengers: [PassengerSchema],
+    numPersons: { type: Number, required: true, default: 1 },
+    message: { type: String },
+    status: { type: String, enum: ['pending', 'confirmed', 'cancelled'], default: 'pending' },
+    totalAmount: { type: Number },
+    paymentStatus: { type: String, enum: ['pending', 'screenshot_received', 'confirmed', 'rejected'], default: 'pending' },
+    amountPaid: { type: Number, default: 0 },
+    paymentMethod: { type: String },
+    paymentRef: { type: String },
+    paymentScreenshot: { type: String },
+    paymentNote: { type: String },
+    isWalkIn: { type: Boolean, default: false },
+  },
+  { timestamps: true }
+)
 
 export default mongoose.models.Booking || mongoose.model<IBooking>('Booking', BookingSchema)

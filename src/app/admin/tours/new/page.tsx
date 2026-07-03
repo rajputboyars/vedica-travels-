@@ -1,4 +1,4 @@
-import TourForm from '@/components/admin/TourForm'
+import TourForm from '@/features/tours/components/TourForm'
 
 export default function NewTourPage() {
   return (

@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Lock } from 'lucide-react'
+import { siteConfig } from '@/config/site'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
@@ -33,7 +34,7 @@ export default function AdminLoginPage() {
             <Lock size={28} className="text-white" />
           </div>
           <h1 className="text-2xl font-bold text-gray-800">Admin Login</h1>
-          <p className="text-gray-500 text-sm mt-1">Parth Saarthi Travels</p>
+          <p className="text-gray-500 text-sm mt-1">{siteConfig.name}</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">
@@ -42,8 +43,8 @@ export default function AdminLoginPage() {
             <input
               type="email"
               className="w-full mt-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
-              value={email} onChange={e => setEmail(e.target.value)}
-              required placeholder="admin@vedica.com"
+              value={email} onChange={(e) => setEmail(e.target.value)}
+              required placeholder={siteConfig.contact.email}
             />
           </div>
           <div>
@@ -51,7 +52,7 @@ export default function AdminLoginPage() {
             <input
               type="password"
               className="w-full mt-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
-              value={password} onChange={e => setPassword(e.target.value)}
+              value={password} onChange={(e) => setPassword(e.target.value)}
               required placeholder="••••••••"
             />
           </div>
