@@ -52,6 +52,7 @@ export default function PaymentStep({ bookingRef, totalAmount, qrImage, paymentN
 
       <div className="border border-gray-100 rounded-xl p-4 text-center bg-gray-50">
         {qrImage ? (
+          // eslint-disable-next-line @next/next/no-img-element -- admin-supplied QR image, same pattern as RegistrationForm.tsx
           <img src={qrImage} alt="Payment QR" className="w-44 h-44 mx-auto object-contain bg-white rounded-lg p-2" />
         ) : (
           <div className="w-44 h-44 mx-auto flex items-center justify-center bg-white rounded-lg text-xs text-gray-400 text-center px-4">
@@ -75,6 +76,7 @@ export default function PaymentStep({ bookingRef, totalAmount, qrImage, paymentN
           <Upload size={15} /> {screenshot ? 'Change screenshot' : 'Choose screenshot'}
           <input type="file" accept="image/*" className="hidden" onChange={handleFile} />
         </label>
+        {/* eslint-disable-next-line @next/next/no-img-element -- local file preview via FileReader, not an optimizable remote image */}
         {screenshot && <img src={screenshot} alt="Payment proof" className="mt-2 max-h-40 mx-auto rounded-lg border border-gray-200" />}
       </div>
 

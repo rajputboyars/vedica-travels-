@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Phone, MapPin, MessageCircle, Globe } from 'lucide-react'
+import { Phone, MapPin, MessageCircle, ArrowUpRight, Mail } from 'lucide-react'
 import { siteConfig, phoneHref } from '@/config/site'
 import { publicNavLinks } from '@/config/nav'
 import type { SiteSettings } from '@/types'
@@ -20,17 +20,14 @@ export default function Footer({ settings }: Props) {
   const siteName = settings?.siteName || siteConfig.name
   const tagline = settings?.tagline || siteConfig.tagline
   const founder = settings?.founder || siteConfig.founder
-  const emoji = siteConfig.emoji
   const phones = settings?.contact.phones || siteConfig.contact.phones
+  const email = settings?.contact.email || siteConfig.contact.email
   const whatsappUrl = settings ? `https://wa.me/${settings.contact.whatsapp}` : siteConfig.contact.whatsappUrl
   const address = settings?.address || siteConfig.address
-  const happyTravellers = settings?.stats.happyTravellers || siteConfig.stats.happyTravellers
   const social = settings?.social || {}
 
-  // lucide-react doesn't ship brand/logo icons (Instagram, Facebook, etc.)
-  // in the version this project uses, so social links use one generic
-  // "Globe" icon plus the platform name as text rather than pulling in a
-  // separate brand-icon package for four small links.
+  // lucide-react doesn't ship brand/logo icons in the version this project
+  // uses, so social links show the platform name as text with a small arrow.
   const socialLinks = [
     { href: social.instagram, label: 'Instagram' },
     { href: social.facebook, label: 'Facebook' },
@@ -39,74 +36,102 @@ export default function Footer({ settings }: Props) {
   ].filter((s) => s.href)
 
   return (
-    <footer className="bg-gray-900 text-gray-300">
-      <div className="max-w-7xl mx-auto px-4 py-12 grid grid-cols-1 md:grid-cols-4 gap-8">
-        <div>
-          <div className="flex items-center gap-2 mb-4">
-            <span className="text-2xl">{emoji}</span>
-            <div>
-              <div className="text-white font-bold text-lg">{siteName}</div>
-              <div className="text-orange-400 text-xs">{tagline}</div>
+    <footer className="lux relative overflow-hidden border-t border-gilt-500/10 bg-ink-950">
+      {/* ambient glow */}
+      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-80 w-[80%] rounded-full bg-gilt-500/5 blur-3xl" />
+
+      <div className="relative max-w-7xl mx-auto px-6 pt-16 pb-10">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10">
+          {/* Brand */}
+          <div className="md:col-span-4">
+            <div className="flex items-center gap-3 mb-5">
+              <span className="grid place-items-center w-11 h-11 rounded-full bg-gradient-to-br from-gilt-300 to-gilt-600 text-ink-900">
+                <span className="text-xl">🛕</span>
+              </span>
+              <div>
+                <div className="font-display text-lg font-semibold text-white">{siteName}</div>
+                <div className="text-xs tracking-wide text-gilt-400">{tagline}</div>
+              </div>
             </div>
+            <p className="text-sm leading-relaxed text-white/55 max-w-xs">
+              Sacred yatras and curated holiday escapes across India — crafted with devotion, comfort and care for over 1000 happy travellers.
+            </p>
+            {socialLinks.length > 0 && (
+              <div className="flex flex-wrap items-center gap-2 mt-6">
+                {socialLinks.map((s) => (
+                  <a
+                    key={s.label}
+                    href={s.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-center gap-1 rounded-full glass px-3 py-1.5 text-xs text-white/70 hover:text-gilt-300 transition-colors"
+                  >
+                    {s.label}
+                    <ArrowUpRight size={12} className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  </a>
+                ))}
+              </div>
+            )}
           </div>
-          <p className="text-sm text-gray-400">{happyTravellers} संतुष्ट तीर्थयात्री। हमारे साथ पवित्र धामों की यात्रा करें।</p>
-          {socialLinks.length > 0 && (
-            <div className="flex items-center gap-3 mt-4 flex-wrap">
-              {socialLinks.map((s) => (
-                <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-xs text-gray-400 hover:text-orange-400 transition-colors">
-                  <Globe size={14} /> {s.label}
+
+          {/* Explore */}
+          <div className="md:col-span-2">
+            <h3 className="text-xs uppercase tracking-[0.22em] text-gilt-400 mb-5">Explore</h3>
+            <ul className="space-y-3 text-sm">
+              {publicNavLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-white/60 hover:text-white transition-colors">
+                    {link.label === 'Tours' ? 'Upcoming Tours' : link.label}
+                  </Link>
+                </li>
+              ))}
+              <li><Link href="/blogs" className="text-white/60 hover:text-white transition-colors">Blog</Link></li>
+              <li><Link href="/faqs" className="text-white/60 hover:text-white transition-colors">FAQs</Link></li>
+            </ul>
+          </div>
+
+          {/* Legal */}
+          <div className="md:col-span-2">
+            <h3 className="text-xs uppercase tracking-[0.22em] text-gilt-400 mb-5">Legal</h3>
+            <ul className="space-y-3 text-sm">
+              {legalLinks.map((link) => (
+                <li key={link.href}>
+                  <Link href={link.href} className="text-white/60 hover:text-white transition-colors">{link.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* Contact */}
+          <div className="md:col-span-4">
+            <h3 className="text-xs uppercase tracking-[0.22em] text-gilt-400 mb-5">Get in touch</h3>
+            <div className="space-y-3 text-sm">
+              {phones.map((phone) => (
+                <a key={phone} href={phoneHref(phone)} className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
+                  <span className="grid place-items-center w-8 h-8 rounded-full glass"><Phone size={13} className="text-gilt-300" /></span>
+                  {phone}
                 </a>
               ))}
-            </div>
-          )}
-        </div>
-
-        <div>
-          <h3 className="text-white font-semibold mb-4">Quick Links</h3>
-          <ul className="space-y-2 text-sm">
-            {publicNavLinks.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="hover:text-orange-400 transition-colors">
-                  {link.label === 'Tours' ? 'Upcoming Tours' : link.label}
-                </Link>
-              </li>
-            ))}
-            <li><Link href="/blogs" className="hover:text-orange-400 transition-colors">Blogs</Link></li>
-            <li><Link href="/faqs" className="hover:text-orange-400 transition-colors">FAQs</Link></li>
-          </ul>
-        </div>
-
-        <div>
-          <h3 className="text-white font-semibold mb-4">Contact Us</h3>
-          <div className="space-y-3 text-sm">
-            {phones.map((phone) => (
-              <a key={phone} href={phoneHref(phone)} className="flex items-center gap-2 hover:text-orange-400">
-                <Phone size={14} /> {phone}
+              <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
+                <span className="grid place-items-center w-8 h-8 rounded-full glass"><MessageCircle size={13} className="text-emerald-300" /></span>
+                WhatsApp Us
               </a>
-            ))}
-            <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-green-400">
-              <MessageCircle size={14} /> WhatsApp Us
-            </a>
-            <div className="flex items-start gap-2 text-gray-400">
-              <MapPin size={14} className="mt-0.5 shrink-0" />
-              <span>{address.line1}<br />{address.line2}</span>
+              <a href={`mailto:${email}`} className="flex items-center gap-3 text-white/70 hover:text-white transition-colors">
+                <span className="grid place-items-center w-8 h-8 rounded-full glass"><Mail size={13} className="text-gilt-300" /></span>
+                {email}
+              </a>
+              <div className="flex items-start gap-3 text-white/60">
+                <span className="grid place-items-center w-8 h-8 rounded-full glass shrink-0"><MapPin size={13} className="text-gilt-300" /></span>
+                <span className="pt-1.5">{address.line1}<br />{address.line2}</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <div>
-          <h3 className="text-white font-semibold mb-4">Legal</h3>
-          <ul className="space-y-2 text-sm">
-            {legalLinks.map((link) => (
-              <li key={link.href}>
-                <Link href={link.href} className="hover:text-orange-400 transition-colors">{link.label}</Link>
-              </li>
-            ))}
-          </ul>
+        <div className="mt-14 pt-6 border-t border-white/5 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-white/40">
+          <span>© {new Date().getFullYear()} {siteName}. All rights reserved.</span>
+          <span>Crafted with devotion · {founder}</span>
         </div>
-      </div>
-      <div className="border-t border-gray-800 py-4 text-center text-xs text-gray-500">
-        © {new Date().getFullYear()} {siteName}. All rights reserved. | {founder}
       </div>
     </footer>
   )

@@ -1,19 +1,21 @@
 'use client'
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
+import { Compass } from 'lucide-react'
 import { useFetch } from '@/hooks/use-fetch'
-import TourCard from '@/features/tours/components/TourCard'
+import LuxTourCard from '@/features/home/components/LuxTourCard'
+import Reveal from '@/features/home/components/Reveal'
 import CategoryTabs, { type CategoryFilter } from '@/features/tours/components/CategoryTabs'
+import PageHero from '@/components/lux/PageHero'
+import EmptyState from '@/components/lux/EmptyState'
 import type { Tour } from '@/types'
 
 // Phase 11 SEO — the interactive (category-filter, client-fetch) part of
 // /tours was extracted out of page.tsx so page.tsx can go back to being a
-// plain Server Component that exports generateMetadata/metadata. A 'use
-// client' page file cannot export metadata, so the split is required, not
-// cosmetic — see (public)/tours/page.tsx.
+// plain Server Component that exports generateMetadata/metadata.
 export default function ToursListClient() {
   return (
-    <Suspense fallback={<div className="text-center py-16 text-gray-400">Loading trips...</div>}>
+    <Suspense fallback={<div className="lux min-h-screen text-center py-40 text-white/40">Loading trips…</div>}>
       <ToursInner />
     </Suspense>
   )
@@ -30,43 +32,49 @@ function ToursInner() {
   const past = visible.filter((t) => t.status === 'completed')
 
   return (
-    <div className="min-h-screen">
-      <div className="relative text-white py-20 px-4 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-orange-700 via-orange-600 to-amber-500" />
-        <div className="relative">
-          <h1 className="text-4xl sm:text-5xl font-bold mb-2">Explore Our Trips</h1>
-          <p className="text-orange-100 text-lg">Spiritual yatras & holiday getaways — handpicked for you</p>
-        </div>
-      </div>
+    <div className="lux">
+      <PageHero
+        eyebrow="Handpicked journeys"
+        title="Explore our"
+        highlight="trips"
+        description="Spiritual yatras & holiday getaways — curated for comfort and devotion."
+        crumbs={[{ label: 'Tours' }]}
+      />
 
-      <div className="max-w-7xl mx-auto px-4 py-10">
-        <CategoryTabs value={cat} onChange={setCat} />
+      <section className="px-6 py-16">
+        <div className="max-w-7xl mx-auto">
+          <CategoryTabs value={cat} onChange={setCat} />
 
-        {loading ? (
-          <div className="text-center py-16 text-gray-400">Loading trips...</div>
-        ) : (
-          <>
-            {upcoming.length === 0 ? (
-              <div className="text-center py-12 text-gray-400 bg-gray-50 rounded-xl mb-12">
-                <p className="text-lg">No trips in this category yet. Check back shortly!</p>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-                {upcoming.map((tour) => <TourCard key={tour._id} tour={tour} />)}
-              </div>
-            )}
-
-            {past.length > 0 && (
-              <>
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">✅ Completed Trips</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {past.map((tour) => <TourCard key={tour._id} tour={tour} />)}
+          {loading ? (
+            <div className="text-center py-24 text-white/40">Loading trips…</div>
+          ) : (
+            <>
+              {upcoming.length === 0 ? (
+                <EmptyState icon={Compass} title="No trips in this category yet" description="New departures are added regularly — check back shortly!" action={{ label: 'View all packages', href: '/packages' }} />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 mb-16">
+                  {upcoming.map((tour, i) => (
+                    <Reveal key={tour._id} delay={(i % 3) * 60}><LuxTourCard tour={tour} /></Reveal>
+                  ))}
                 </div>
-              </>
-            )}
-          </>
-        )}
-      </div>
+              )}
+
+              {past.length > 0 && (
+                <>
+                  <h2 className="mb-8 font-display text-2xl font-semibold text-white flex items-center gap-2">
+                    <span className="h-px w-6 bg-gilt-500/50" /> Completed Trips
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-7 opacity-75">
+                    {past.map((tour, i) => (
+                      <Reveal key={tour._id} delay={(i % 3) * 60}><LuxTourCard tour={tour} /></Reveal>
+                    ))}
+                  </div>
+                </>
+              )}
+            </>
+          )}
+        </div>
+      </section>
     </div>
   )
 }

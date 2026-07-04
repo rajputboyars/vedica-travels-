@@ -3,7 +3,8 @@ import { Suspense, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { LogIn } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import AuthShell, { SubmitButton } from '@/components/lux/AuthShell'
+import Field, { Input } from '@/components/lux/Field'
 import { siteConfig } from '@/config/site'
 
 function LoginForm() {
@@ -38,56 +39,33 @@ function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <label className="text-sm font-medium text-gray-700">Email</label>
-        <input
-          type="email"
-          className="w-full mt-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
-          value={email} onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-      </div>
-      <div>
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700">Password</label>
-          <Link href="/forgot-password" className="text-xs text-orange-600 hover:underline">Forgot password?</Link>
-        </div>
-        <input
-          type="password"
-          className="w-full mt-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
-          value={password} onChange={(e) => setPassword(e.target.value)}
-          required
-        />
-      </div>
-      {error && <p className="text-red-500 text-sm">{error}</p>}
-      <Button type="submit" className="w-full" size="lg" disabled={loading}>
-        {loading ? 'Logging in…' : 'Log In'}
-      </Button>
+      <Field label="Email" htmlFor="email">
+        <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+      </Field>
+      <Field
+        label="Password"
+        htmlFor="password"
+        error={error}
+        hint={<Link href="/forgot-password" className="text-xs text-gilt-300 hover:underline">Forgot password?</Link>}
+      >
+        <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+      </Field>
+      <SubmitButton type="submit" disabled={loading}>{loading ? 'Logging in…' : 'Log In'}</SubmitButton>
     </form>
   )
 }
 
 export default function CustomerLoginPage() {
   return (
-    <div className="min-h-[70vh] bg-gray-50 flex items-center justify-center px-4 py-16">
-      <div className="bg-white rounded-2xl shadow-sm p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <LogIn size={28} className="text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-800">Welcome Back</h1>
-          <p className="text-gray-500 text-sm mt-1">Log in to {siteConfig.name}</p>
-        </div>
-
-        <Suspense fallback={<p className="text-center text-sm text-gray-400">Loading…</p>}>
-          <LoginForm />
-        </Suspense>
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          New here?{' '}
-          <Link href="/register" className="text-orange-600 font-medium hover:underline">Create an account</Link>
-        </p>
-      </div>
-    </div>
+    <AuthShell
+      icon={LogIn}
+      title="Welcome Back"
+      subtitle={`Log in to ${siteConfig.name}`}
+      footer={<>New here? <Link href="/register" className="text-gilt-300 font-medium hover:underline">Create an account</Link></>}
+    >
+      <Suspense fallback={<p className="text-center text-sm text-white/40">Loading…</p>}>
+        <LoginForm />
+      </Suspense>
+    </AuthShell>
   )
 }

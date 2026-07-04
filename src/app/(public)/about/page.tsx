@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
-import { Users, Star, Bus, MapPin } from 'lucide-react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Users, Star, Bus, MapPin, Sparkles, HeartHandshake } from 'lucide-react'
+import PageHero from '@/components/lux/PageHero'
+import SectionHeading from '@/features/home/components/SectionHeading'
+import Reveal from '@/features/home/components/Reveal'
 import { siteConfig } from '@/config/site'
 
 export const metadata: Metadata = {
@@ -11,61 +13,98 @@ export const metadata: Metadata = {
   openGraph: { title: 'About Us', description: `The story of service and devotion behind ${siteConfig.name}.` },
 }
 
+const values = [
+  { icon: Bus, title: 'AC Transport', desc: 'Comfortable AC coaches & Volvo buses for every journey' },
+  { icon: Star, title: 'Experienced Team', desc: 'Knowledgeable guides and staff at every step' },
+  { icon: Users, title: 'Group Bonding', desc: 'Travel and connect with fellow devotees' },
+  { icon: MapPin, title: 'Best Routes', desc: 'Carefully planned, time-tested itineraries' },
+]
+
 export default function AboutPage() {
   return (
-    <div className="min-h-screen">
-      <div className="bg-gradient-to-r from-orange-600 to-amber-500 text-white py-14 px-4 text-center">
-        <h1 className="text-4xl font-bold mb-2">About Us</h1>
-        <p className="text-orange-100">Our story of service and devotion</p>
-      </div>
+    <div className="lux">
+      <PageHero
+        eyebrow="Our story"
+        title="Service &"
+        highlight="devotion"
+        description="The people and the promise behind every Parth Saarthi journey."
+        crumbs={[{ label: 'About Us' }]}
+      />
 
-      <div className="max-w-5xl mx-auto px-4 py-12 space-y-12">
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-          <div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">{siteConfig.emoji} {siteConfig.name}</h2>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Founded by <strong>{siteConfig.founder}</strong>, {siteConfig.name} has been serving thousands of devotees on their sacred pilgrimage journeys.
-              We believe every soul deserves a comfortable and memorable yatra experience.
+      <section className="px-6 py-20">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <Reveal>
+            <span className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.28em] text-gilt-400">
+              <span className="h-px w-6 bg-gilt-500/50" /> Who we are
+            </span>
+            <h2 className="mt-4 font-display text-3xl sm:text-4xl font-semibold text-white leading-tight">
+              {siteConfig.name}
+            </h2>
+            <p className="mt-5 text-white/60 leading-relaxed">
+              Founded by <strong className="text-white/90">{siteConfig.founder}</strong>, {siteConfig.name} has been serving
+              thousands of devotees on their sacred pilgrimage journeys. We believe every soul deserves a comfortable and
+              memorable yatra experience.
             </p>
-            <p className="text-gray-600 leading-relaxed">
-              Our tagline — <em>&quot;{siteConfig.tagline}&quot;</em> ({siteConfig.taglineEn}) — reflects our commitment to making every journey a divine experience.
+            <p className="mt-4 text-white/60 leading-relaxed">
+              Our tagline — <em className="text-gilt-200">&quot;{siteConfig.tagline}&quot;</em> ({siteConfig.taglineEn}) —
+              reflects our commitment to making every journey a divine experience.
             </p>
-          </div>
-          <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-2xl p-8 text-center">
-            <div className="text-7xl mb-4">🛕</div>
-            <div className="text-4xl font-bold text-orange-600 mb-1">{siteConfig.stats.happyTravellers}</div>
-            <div className="text-gray-600">Happy Devotees Served</div>
-          </div>
-        </section>
+          </Reveal>
 
-        <section>
-          <h2 className="text-2xl font-bold text-gray-800 text-center mb-8">Why Choose Us?</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {[
-              { icon: <Bus size={32} className="text-orange-600" />, title: 'AC Transport', desc: 'Comfortable AC buses for all journeys' },
-              { icon: <Star size={32} className="text-orange-600" />, title: 'Experienced Team', desc: 'Knowledgeable guides and staff' },
-              { icon: <Users size={32} className="text-orange-600" />, title: 'Group Bonding', desc: 'Connect with fellow devotees' },
-              { icon: <MapPin size={32} className="text-orange-600" />, title: 'Best Routes', desc: 'Carefully planned itineraries' },
-            ].map((item, i) => (
-              <Card key={i} className="text-center p-6 hover:shadow-md transition-shadow">
-                <CardContent className="p-0">
-                  <div className="flex justify-center mb-3">{item.icon}</div>
-                  <h3 className="font-semibold text-gray-800 mb-1">{item.title}</h3>
-                  <p className="text-sm text-gray-500">{item.desc}</p>
-                </CardContent>
-              </Card>
+          <Reveal delay={120}>
+            <div className="relative rounded-3xl glass gilt-border p-10 text-center overflow-hidden">
+              <div className="pointer-events-none absolute -top-16 left-1/2 -translate-x-1/2 h-40 w-40 rounded-full bg-gilt-500/15 blur-3xl" />
+              <div className="relative">
+                <Sparkles className="mx-auto text-gilt-300" size={30} />
+                <div className="mt-6 font-display text-5xl font-semibold gilt-text">{siteConfig.stats.happyTravellers}</div>
+                <div className="mt-2 text-white/60">Happy Devotees Served</div>
+                <div className="mt-6 grid grid-cols-3 gap-4 border-t border-white/5 pt-6">
+                  <div><div className="font-display text-2xl font-semibold text-white">{siteConfig.stats.tripsCompleted}</div><div className="text-xs text-white/45 mt-1">Trips</div></div>
+                  <div><div className="font-display text-2xl font-semibold text-white">{siteConfig.stats.destinations}</div><div className="text-xs text-white/45 mt-1">Places</div></div>
+                  <div><div className="font-display text-2xl font-semibold text-white">{siteConfig.stats.averageRating}</div><div className="text-xs text-white/45 mt-1">Rating</div></div>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      <section className="px-6 py-20 bg-ink-850">
+        <div className="max-w-7xl mx-auto">
+          <SectionHeading eyebrow="The difference" title="Why choose" highlight="us" />
+          <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {values.map((v, i) => (
+              <Reveal key={i} delay={i * 70}>
+                <div className="hover-lift group h-full rounded-3xl glass gilt-border p-7">
+                  <span className="grid place-items-center w-14 h-14 rounded-2xl bg-gradient-to-br from-gilt-300/20 to-gilt-600/10 border border-gilt-500/25 text-gilt-300 transition-transform duration-500 group-hover:scale-105">
+                    <v.icon size={24} />
+                  </span>
+                  <h3 className="mt-5 font-display text-lg font-semibold text-white">{v.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/55">{v.desc}</p>
+                </div>
+              </Reveal>
             ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <section className="bg-orange-50 rounded-2xl p-8 text-center">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Our Mission</h2>
-          <p className="text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            To provide safe, comfortable, and spiritually enriching pilgrimage experiences to all devotees,
-            making sacred journeys accessible and memorable for everyone.
-          </p>
-        </section>
-      </div>
+      <section className="px-6 py-20">
+        <div className="max-w-4xl mx-auto">
+          <Reveal>
+            <div className="relative rounded-3xl glass gilt-border p-10 sm:p-14 text-center overflow-hidden">
+              <div className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 h-48 w-[60%] rounded-full bg-gilt-500/10 blur-3xl" />
+              <div className="relative">
+                <span className="grid place-items-center w-14 h-14 mx-auto rounded-2xl bg-gilt-400/15 text-gilt-300"><HeartHandshake size={24} /></span>
+                <h2 className="mt-6 font-display text-3xl font-semibold text-white">Our Mission</h2>
+                <p className="mt-4 text-white/60 max-w-2xl mx-auto leading-relaxed">
+                  To provide safe, comfortable, and spiritually enriching pilgrimage experiences to all devotees — making
+                  sacred journeys accessible and memorable for everyone.
+                </p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
     </div>
   )
 }

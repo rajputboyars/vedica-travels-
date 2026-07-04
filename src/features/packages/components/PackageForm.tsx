@@ -309,6 +309,7 @@ export default function PackageForm({ initialData, packageId }: PackageFormProps
             </label>
             {form.qrImages.map((qr, i) => (
               <div key={i} className="relative">
+                {/* eslint-disable-next-line @next/next/no-img-element -- local file preview via FileReader, same pattern as TourForm's QR upload */}
                 <img src={qr} alt={`QR ${i + 1}`} className="w-16 h-16 object-contain border border-gray-200 rounded-lg bg-white" />
                 <button
                   type="button"

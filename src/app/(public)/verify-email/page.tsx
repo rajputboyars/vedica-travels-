@@ -3,6 +3,7 @@ import { Suspense, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { MailCheck, XCircle, Loader2 } from 'lucide-react'
+import AuthShell from '@/components/lux/AuthShell'
 
 function VerifyEmailStatus() {
   const searchParams = useSearchParams()
@@ -22,8 +23,8 @@ function VerifyEmailStatus() {
 
   if (state === 'loading') {
     return (
-      <div className="flex flex-col items-center gap-3 text-gray-500">
-        <Loader2 size={28} className="animate-spin text-orange-500" />
+      <div className="flex flex-col items-center gap-3 text-white/60 py-4">
+        <Loader2 size={28} className="animate-spin text-gilt-300" />
         <p className="text-sm">Verifying your email…</p>
       </div>
     )
@@ -31,31 +32,29 @@ function VerifyEmailStatus() {
 
   if (state === 'ok') {
     return (
-      <div className="flex flex-col items-center gap-3">
-        <MailCheck size={40} className="text-green-500" />
-        <p className="font-medium text-gray-800">Email verified!</p>
-        <Link href="/dashboard" className="text-orange-600 text-sm font-medium hover:underline">Go to your dashboard</Link>
+      <div className="flex flex-col items-center gap-3 py-4 text-center">
+        <MailCheck size={40} className="text-emerald-400" />
+        <p className="font-medium text-white">Email verified!</p>
+        <Link href="/dashboard" className="text-gilt-300 text-sm font-medium hover:underline">Go to your dashboard</Link>
       </div>
     )
   }
 
   return (
-    <div className="flex flex-col items-center gap-3">
-      <XCircle size={40} className="text-red-400" />
-      <p className="font-medium text-gray-800">This verification link is invalid or has expired.</p>
-      <Link href="/dashboard" className="text-orange-600 text-sm font-medium hover:underline">Go to your dashboard</Link>
+    <div className="flex flex-col items-center gap-3 py-4 text-center">
+      <XCircle size={40} className="text-rose-400" />
+      <p className="font-medium text-white">This verification link is invalid or has expired.</p>
+      <Link href="/dashboard" className="text-gilt-300 text-sm font-medium hover:underline">Go to your dashboard</Link>
     </div>
   )
 }
 
 export default function VerifyEmailPage() {
   return (
-    <div className="min-h-[70vh] bg-gray-50 flex items-center justify-center px-4 py-16">
-      <div className="bg-white rounded-2xl shadow-sm p-10 w-full max-w-md text-center">
-        <Suspense fallback={<p className="text-sm text-gray-400">Loading…</p>}>
-          <VerifyEmailStatus />
-        </Suspense>
-      </div>
-    </div>
+    <AuthShell icon={MailCheck} title="Email Verification">
+      <Suspense fallback={<p className="text-center text-sm text-white/40">Loading…</p>}>
+        <VerifyEmailStatus />
+      </Suspense>
+    </AuthShell>
   )
 }

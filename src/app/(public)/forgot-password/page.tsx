@@ -1,8 +1,9 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { KeyRound } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { KeyRound, MailCheck } from 'lucide-react'
+import AuthShell, { SubmitButton } from '@/components/lux/AuthShell'
+import Field, { Input } from '@/components/lux/Field'
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -29,39 +30,25 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-[70vh] bg-gray-50 flex items-center justify-center px-4 py-16">
-      <div className="bg-white rounded-2xl shadow-sm p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <KeyRound size={28} className="text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-800">Reset Password</h1>
-          <p className="text-gray-500 text-sm mt-1">We&apos;ll email you a reset link</p>
+    <AuthShell
+      icon={KeyRound}
+      title="Reset Password"
+      subtitle="We'll email you a reset link"
+      footer={<Link href="/login" className="text-gilt-300 font-medium hover:underline">Back to login</Link>}
+    >
+      {message ? (
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <MailCheck size={40} className="text-emerald-400" />
+          <p className="text-sm text-white/70">{message}</p>
         </div>
-
-        {message ? (
-          <p className="text-center text-sm text-gray-600 py-4">{message}</p>
-        ) : (
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                className="w-full mt-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
-                value={email} onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" size="lg" disabled={loading}>
-              {loading ? 'Sending…' : 'Send Reset Link'}
-            </Button>
-          </form>
-        )}
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          <Link href="/login" className="text-orange-600 font-medium hover:underline">Back to login</Link>
-        </p>
-      </div>
-    </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Field label="Email" htmlFor="email">
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </Field>
+          <SubmitButton type="submit" disabled={loading}>{loading ? 'Sending…' : 'Send Reset Link'}</SubmitButton>
+        </form>
+      )}
+    </AuthShell>
   )
 }

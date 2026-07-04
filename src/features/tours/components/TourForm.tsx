@@ -203,6 +203,7 @@ export default function TourForm({ initialData, tourId }: TourFormProps) {
             </label>
             {form.qrImage && (
               <div className="flex items-center gap-2">
+                {/* eslint-disable-next-line @next/next/no-img-element -- local file preview via FileReader, not an optimizable remote image */}
                 <img src={form.qrImage} alt="QR" className="w-16 h-16 object-contain border border-gray-200 rounded-lg bg-white" />
                 <button type="button" onClick={() => setForm({ ...form, qrImage: '' })} className="text-xs text-red-500 underline">Remove</button>
               </div>

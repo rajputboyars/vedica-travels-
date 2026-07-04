@@ -217,6 +217,7 @@ export default function AdminRegistrationsPage() {
       {viewShot && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4" onClick={() => setViewShot(null)}>
           <div className="absolute inset-0 bg-black/60" />
+          {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded payment screenshot (data URL), not an optimizable remote image */}
           <img src={viewShot} alt="Payment screenshot" className="relative max-w-full max-h-full rounded-lg shadow-2xl" />
         </div>
       )}

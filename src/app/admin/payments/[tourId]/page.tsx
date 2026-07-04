@@ -161,6 +161,7 @@ export default function TourPaymentsPage() {
               <span className="text-sm font-medium text-gray-700">Payment Screenshot</span>
               <button onClick={() => setViewShot(null)} className="text-gray-400 hover:text-gray-600"><XCircle size={18} /></button>
             </div>
+            {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded payment screenshot (data URL), not an optimizable remote image */}
             <img src={viewShot} alt="Payment screenshot" className="w-full rounded-lg" />
           </div>
         </div>

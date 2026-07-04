@@ -2,8 +2,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { UserPlus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { UserPlus, CheckCircle2 } from 'lucide-react'
+import AuthShell, { SubmitButton } from '@/components/lux/AuthShell'
+import Field, { Input } from '@/components/lux/Field'
 import { siteConfig } from '@/config/site'
 
 export default function CustomerRegisterPage() {
@@ -40,65 +41,31 @@ export default function CustomerRegisterPage() {
   }
 
   return (
-    <div className="min-h-[70vh] bg-gray-50 flex items-center justify-center px-4 py-16">
-      <div className="bg-white rounded-2xl shadow-sm p-8 w-full max-w-md">
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-amber-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <UserPlus size={28} className="text-white" />
-          </div>
-          <h1 className="text-2xl font-bold text-gray-800">Create Your Account</h1>
-          <p className="text-gray-500 text-sm mt-1">Join {siteConfig.name} to track your bookings</p>
+    <AuthShell
+      icon={UserPlus}
+      title="Create Your Account"
+      subtitle={`Join ${siteConfig.name} to track your bookings`}
+      footer={done ? undefined : <>Already have an account? <Link href="/login" className="text-gilt-300 font-medium hover:underline">Log in</Link></>}
+    >
+      {done ? (
+        <div className="flex flex-col items-center gap-3 py-4 text-center">
+          <CheckCircle2 size={40} className="text-emerald-400" />
+          <p className="text-sm text-white/70">Account created! We&apos;ve sent a verification email — redirecting you to your dashboard…</p>
         </div>
-
-        {done ? (
-          <p className="text-center text-green-600 text-sm py-4">
-            Account created! We&apos;ve sent a verification email — redirecting you to your dashboard…
-          </p>
-        ) : (
-          <>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-gray-700">Full Name</label>
-                <input
-                  type="text"
-                  className="w-full mt-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
-                  value={name} onChange={(e) => setName(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Email</label>
-                <input
-                  type="email"
-                  className="w-full mt-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
-                  value={email} onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-gray-700">Password</label>
-                <input
-                  type="password"
-                  minLength={8}
-                  className="w-full mt-1 px-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-300"
-                  value={password} onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-                <p className="text-xs text-gray-400 mt-1">At least 8 characters</p>
-              </div>
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
-                {loading ? 'Creating account…' : 'Create Account'}
-              </Button>
-            </form>
-
-            <p className="text-center text-sm text-gray-500 mt-6">
-              Already have an account?{' '}
-              <Link href="/login" className="text-orange-600 font-medium hover:underline">Log in</Link>
-            </p>
-          </>
-        )}
-      </div>
-    </div>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Field label="Full Name" htmlFor="name">
+            <Input id="name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+          </Field>
+          <Field label="Email" htmlFor="email">
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          </Field>
+          <Field label="Password" htmlFor="password" error={error} hint={<span className="text-xs text-white/40">Min 8 characters</span>}>
+            <Input id="password" type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required />
+          </Field>
+          <SubmitButton type="submit" disabled={loading}>{loading ? 'Creating account…' : 'Create Account'}</SubmitButton>
+        </form>
+      )}
+    </AuthShell>
   )
 }

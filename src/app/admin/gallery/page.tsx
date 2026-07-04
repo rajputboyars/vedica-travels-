@@ -73,6 +73,7 @@ export default function AdminGalleryPage() {
           {images.map((img) => (
             <div key={img._id} className="bg-white rounded-xl shadow-sm overflow-hidden group">
               <div className="aspect-square bg-gray-100 relative">
+                {/* eslint-disable-next-line @next/next/no-img-element -- admin-supplied gallery URL, same pattern as TourImage/PackageCard */}
                 <img src={img.url} alt={img.caption || 'Gallery'} className="w-full h-full object-cover" />
                 <button
                   onClick={() => confirmDialog.ask(img)}

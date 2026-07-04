@@ -24,6 +24,23 @@
   --color-cream-50: #fffdf9;
   --color-cream-100: #fffbf5;
   --color-cream-200: #fbf3e7;
+
+  /* Luxury / premium palette (public marketing site) --------------------
+     Deep midnight navy backgrounds + a warm gilded gold accent. Used by
+     the redesigned home page, navbar, and footer. Named `ink` (navy) and
+     `gilt` (gold) so they never collide with the legacy saffron/gold
+     scales the admin panel + forms still rely on. */
+  --color-ink-950: #050b15;
+  --color-ink-900: #07111f;
+  --color-ink-850: #0a1322;
+  --color-ink-800: #0d1628;
+  --color-ink-700: #111d33;
+  --color-ink-600: #17253f;
+  --color-gilt-200: #f7e2a8;
+  --color-gilt-300: #f4d06f;
+  --color-gilt-400: #e6c05c;
+  --color-gilt-500: #d4af37;
+  --color-gilt-600: #b8942a;
 }
 
 body {
@@ -63,3 +80,109 @@ h1, h2, h3, .font-display {
 a, button { -webkit-tap-highlight-color: transparent; }
 img { content-visibility: auto; }
 html { scroll-behavior: smooth; }
+
+/* =====================================================================
+   LUXURY DESIGN SYSTEM — public marketing site
+   Scoped utilities used by the redesigned home page, navbar & footer.
+   None of this touches the admin/dashboard light theme.
+   ===================================================================== */
+
+/* Dark-scoped page wrapper: sets the midnight canvas + light text without
+   mutating the global <body> (which the admin/other pages still need light). */
+.lux {
+  background-color: var(--color-ink-900);
+  color: #eef2f8;
+  font-family: var(--font-sans);
+}
+.lux ::selection { background: var(--color-gilt-500); color: #07111f; }
+
+/* Frosted glass surfaces --------------------------------------------- */
+.glass {
+  background: rgba(17, 29, 51, 0.55);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  border: 1px solid rgba(244, 208, 111, 0.12);
+}
+.glass-strong {
+  background: rgba(10, 19, 34, 0.82);
+  backdrop-filter: blur(22px) saturate(140%);
+  -webkit-backdrop-filter: blur(22px) saturate(140%);
+  border: 1px solid rgba(244, 208, 111, 0.14);
+}
+.glass-soft {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Gold gradient text + hairline gilt border -------------------------- */
+.gilt-text {
+  background: linear-gradient(135deg, #f7e2a8 0%, #f4d06f 40%, #d4af37 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.gilt-border {
+  position: relative;
+}
+.gilt-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(244,208,111,0.55), rgba(244,208,111,0.05) 45%, rgba(244,208,111,0.35));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Gold glow for primary CTAs */
+.gilt-glow { box-shadow: 0 10px 30px -8px rgba(212, 175, 55, 0.5); }
+.gilt-glow:hover { box-shadow: 0 14px 40px -6px rgba(212, 175, 55, 0.65); }
+
+/* Hover lift for cards ------------------------------------------------ */
+.hover-lift { transition: transform .5s cubic-bezier(.2,.8,.2,1), box-shadow .5s cubic-bezier(.2,.8,.2,1), border-color .5s; }
+.hover-lift:hover { transform: translateY(-6px); }
+
+/* Ambient radial glows behind hero / sections ------------------------ */
+.aura::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(60% 55% at 78% 18%, rgba(212,175,55,0.16), transparent 60%),
+    radial-gradient(50% 50% at 12% 8%, rgba(56,89,150,0.20), transparent 60%);
+  pointer-events: none;
+}
+
+/* Scroll-reveal — starts hidden, animates in when .in-view is added ---- */
+.reveal { opacity: 0; transform: translateY(26px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); will-change: opacity, transform; }
+.reveal.in-view { opacity: 1; transform: none; }
+
+/* Slow float for the badge / decorative bits ------------------------- */
+@keyframes floaty { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+.animate-floaty { animation: floaty 6s ease-in-out infinite; }
+
+@keyframes shimmer { 0% { background-position: -200% 0 } 100% { background-position: 200% 0 } }
+
+/* Slow ken-burns zoom for hero background */
+@keyframes kenburns { 0% { transform: scale(1.05) } 100% { transform: scale(1.18) } }
+.animate-kenburns { animation: kenburns 22s ease-out forwards; }
+
+/* Marquee row for the trust strip */
+@keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
+.animate-marquee { animation: marquee 32s linear infinite; }
+
+/* Elegant thin scrollbar within the dark experience */
+.lux ::-webkit-scrollbar { width: 10px; height: 10px; }
+.lux ::-webkit-scrollbar-track { background: #07111f; }
+.lux ::-webkit-scrollbar-thumb { background: #1c2c48; border-radius: 20px; border: 2px solid #07111f; }
+.lux ::-webkit-scrollbar-thumb:hover { background: #2a3d61; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .animate-kenburns, .animate-floaty, .animate-marquee { animation: none !important; }
+}

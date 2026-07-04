@@ -51,19 +51,19 @@ function AdminShellInner({ children }: { children: React.ReactNode }) {
   return (
     <div className="admin-shell flex h-screen bg-gray-100">
       <aside className={cn(
-        'fixed inset-y-0 left-0 z-50 w-64 bg-gray-900 text-white transform transition-transform duration-200 md:relative md:translate-x-0',
+        'admin-sidebar fixed inset-y-0 left-0 z-50 w-64 flex flex-col bg-ink-900 text-white transform transition-transform duration-200 md:relative md:translate-x-0',
         sidebarOpen ? 'translate-x-0' : '-translate-x-full'
       )}>
-        <div className="p-6 border-b border-gray-700">
+        <div className="p-6 border-b border-white/5">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">{siteConfig.emoji}</span>
+            <span className="grid place-items-center w-10 h-10 rounded-full bg-gradient-to-br from-gilt-300 to-gilt-600 text-ink-900"><span className="text-lg">🛕</span></span>
             <div>
-              <div className="font-bold text-sm">{siteConfig.shortName}</div>
-              <div className="text-xs text-gray-400">Admin Panel</div>
+              <div className="font-semibold text-sm text-white">{siteConfig.shortName}</div>
+              <div className="text-[10px] uppercase tracking-[0.24em] text-gilt-400">Admin Panel</div>
             </div>
           </div>
         </div>
-        <nav className="p-4 space-y-1 flex-1">
+        <nav className="p-4 space-y-1 flex-1 overflow-y-auto">
           {adminNavItems.map((item) => {
             const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href)
             return (
@@ -72,8 +72,8 @@ function AdminShellInner({ children }: { children: React.ReactNode }) {
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
                 className={cn(
-                  'flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-colors',
-                  isActive ? 'bg-orange-600 text-white' : 'text-gray-300 hover:bg-gray-800 hover:text-white'
+                  'flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-colors',
+                  isActive ? 'bg-gilt-400 text-ink-900 font-medium' : 'text-white/70 hover:bg-white/5 hover:text-white'
                 )}
               >
                 <item.icon size={18} />{item.label}
@@ -81,20 +81,20 @@ function AdminShellInner({ children }: { children: React.ReactNode }) {
             )
           })}
         </nav>
-        <div className="p-4 border-t border-gray-700">
+        <div className="p-4 border-t border-white/5">
           <button
             onClick={() => signOut({ callbackUrl: '/admin/login' })}
-            className="flex items-center gap-3 px-4 py-2.5 w-full text-gray-300 hover:bg-gray-800 hover:text-white rounded-lg text-sm transition-colors"
+            className="flex items-center gap-3 px-4 py-2.5 w-full text-white/70 hover:bg-white/5 hover:text-white rounded-xl text-sm transition-colors"
           >
             <LogOut size={18} /> Logout
           </button>
         </div>
       </aside>
 
-      {sidebarOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
+      {sidebarOpen && <div className="fixed inset-0 bg-ink-950/60 z-40 md:hidden" onClick={() => setSidebarOpen(false)} />}
 
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <header className="bg-white shadow-sm px-6 py-4 flex items-center gap-4">
+        <header className="bg-white border-b border-gray-200 px-6 py-4 flex items-center gap-4">
           <button className="md:hidden" onClick={() => setSidebarOpen(true)} aria-label="Open menu">
             <Menu size={22} className="text-gray-600" />
           </button>
