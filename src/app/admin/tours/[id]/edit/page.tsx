@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import TourForm from '@/features/tours/components/TourForm'
+import { AdminHeader } from '@/features/admin/components/ui'
 import { getTour } from '@/services/tour.service'
 
 export default async function EditTourPage({ params }: { params: Promise<{ id: string }> }) {
@@ -9,11 +10,10 @@ export default async function EditTourPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Edit Tour</h1>
-        <p className="text-gray-500 text-sm">Update tour details</p>
+      <AdminHeader title="Edit Tour" description="Update tour details." />
+      <div className="rounded-3xl bg-white text-gray-900 p-6 sm:p-8 ring-1 ring-gilt-500/20">
+        <TourForm initialData={tour} tourId={id} />
       </div>
-      <TourForm initialData={tour} tourId={id} />
     </div>
   )
 }

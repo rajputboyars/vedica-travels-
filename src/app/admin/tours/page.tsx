@@ -1,17 +1,18 @@
 'use client'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { Plus, Edit, Trash2, Calendar } from 'lucide-react'
 import ConfirmDialog from '@/components/ui/confirm-dialog'
+import EmptyState from '@/components/lux/EmptyState'
+import { AdminHeader, PrimaryLink, tableWrap, tableCls, theadCls, thCls, tdCls, rowCls, iconBtn, dangerIconBtn, AdminLoading } from '@/features/admin/components/ui'
 import { useFetch } from '@/hooks/use-fetch'
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
 import type { Tour } from '@/types'
 
 const statusColor: Record<string, string> = {
-  upcoming: 'bg-green-100 text-green-700',
-  ongoing: 'bg-blue-100 text-blue-700',
-  completed: 'bg-gray-100 text-gray-700',
-  cancelled: 'bg-red-100 text-red-700',
+  upcoming: 'bg-emerald-500/15 text-emerald-300',
+  ongoing: 'bg-sky-500/15 text-sky-300',
+  completed: 'bg-white/10 text-white/60',
+  cancelled: 'bg-rose-500/15 text-rose-300',
 }
 
 export default function AdminToursPage() {
@@ -27,64 +28,42 @@ export default function AdminToursPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Tours</h1>
-          <p className="text-gray-500 text-sm">{tours.length} total tours</p>
-        </div>
-        <Link href="/admin/tours/new">
-          <Button><Plus size={16} className="mr-1" /> Add Tour</Button>
-        </Link>
-      </div>
+      <AdminHeader title="Tours" description={`${tours.length} total tours`}>
+        <PrimaryLink href="/admin/tours/new" icon={Plus}>Add Tour</PrimaryLink>
+      </AdminHeader>
 
       {loading ? (
-        <div className="text-center py-12 text-gray-400">Loading...</div>
+        <AdminLoading />
       ) : tours.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-          <Calendar size={40} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500">No tours yet. Add your first yatra!</p>
-          <Link href="/admin/tours/new" className="mt-4 inline-block">
-            <Button size="sm"><Plus size={14} className="mr-1" /> Add Tour</Button>
-          </Link>
-        </div>
+        <EmptyState icon={Calendar} title="No tours yet" description="Add your first yatra departure to get started." action={{ label: 'Add Tour', href: '/admin/tours/new' }} />
       ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-100">
+        <div className={tableWrap}>
+          <table className={tableCls}>
+            <thead className={theadCls}>
               <tr>
-                <th className="text-left px-5 py-3 text-gray-600 font-medium">Tour</th>
-                <th className="text-left px-5 py-3 text-gray-600 font-medium hidden md:table-cell">Date</th>
-                <th className="text-left px-5 py-3 text-gray-600 font-medium hidden sm:table-cell">Price</th>
-                <th className="text-left px-5 py-3 text-gray-600 font-medium">Status</th>
-                <th className="px-5 py-3"></th>
+                <th className={thCls}>Tour</th>
+                <th className={`${thCls} hidden md:table-cell`}>Date</th>
+                <th className={`${thCls} hidden sm:table-cell`}>Price</th>
+                <th className={thCls}>Status</th>
+                <th className={thCls}></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody>
               {tours.map((tour) => (
-                <tr key={tour._id} className="hover:bg-gray-50">
-                  <td className="px-5 py-4">
-                    <div className="font-medium text-gray-800">{tour.title}</div>
-                    <div className="text-xs text-gray-400">{tour.route}</div>
+                <tr key={tour._id} className={rowCls}>
+                  <td className={tdCls}>
+                    <div className="font-medium text-white">{tour.title}</div>
+                    <div className="text-xs text-white/40">{tour.route}</div>
                   </td>
-                  <td className="px-5 py-4 text-gray-600 hidden md:table-cell">
-                    {new Date(tour.startDate).toLocaleDateString('en-IN')}
+                  <td className={`${tdCls} text-white/60 hidden md:table-cell`}>{new Date(tour.startDate).toLocaleDateString('en-IN')}</td>
+                  <td className={`${tdCls} hidden sm:table-cell font-semibold gilt-text`}>₹{tour.price.toLocaleString()}</td>
+                  <td className={tdCls}>
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium capitalize ${statusColor[tour.status]}`}>{tour.status}</span>
                   </td>
-                  <td className="px-5 py-4 text-orange-600 font-semibold hidden sm:table-cell">
-                    ₹{tour.price.toLocaleString()}
-                  </td>
-                  <td className="px-5 py-4">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${statusColor[tour.status]}`}>
-                      {tour.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2 justify-end">
-                      <Link href={`/admin/tours/${tour._id}/edit`}>
-                        <Button size="sm" variant="ghost"><Edit size={15} /></Button>
-                      </Link>
-                      <Button size="sm" variant="destructive" onClick={() => confirmDialog.ask(tour)}>
-                        <Trash2 size={15} />
-                      </Button>
+                  <td className={tdCls}>
+                    <div className="flex items-center gap-1 justify-end">
+                      <Link href={`/admin/tours/${tour._id}/edit`} className={iconBtn} title="Edit"><Edit size={16} /></Link>
+                      <button className={dangerIconBtn} onClick={() => confirmDialog.ask(tour)} title="Delete"><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>

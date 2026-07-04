@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation'
 import PackageForm from '@/features/packages/components/PackageForm'
+import { AdminHeader } from '@/features/admin/components/ui'
 import { getPackage } from '@/services/package.service'
 
 export default async function EditPackagePage({ params }: { params: Promise<{ id: string }> }) {
@@ -9,11 +10,10 @@ export default async function EditPackagePage({ params }: { params: Promise<{ id
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Edit Package</h1>
-        <p className="text-gray-500 text-sm">Update package details</p>
+      <AdminHeader title="Edit Package" description="Update package details." />
+      <div className="rounded-3xl bg-white text-gray-900 p-6 sm:p-8 ring-1 ring-gilt-500/20">
+        <PackageForm initialData={pkg} packageId={id} />
       </div>
-      <PackageForm initialData={pkg} packageId={id} />
     </div>
   )
 }

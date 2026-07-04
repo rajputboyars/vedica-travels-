@@ -1,9 +1,10 @@
 'use client'
 import { useMemo, useState } from 'react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
 import { Plus, Edit, Trash2, Archive, ArchiveRestore, Package as PackageIcon } from 'lucide-react'
 import ConfirmDialog from '@/components/ui/confirm-dialog'
+import EmptyState from '@/components/lux/EmptyState'
+import { AdminHeader, PrimaryLink, adminControl, tableWrap, tableCls, theadCls, thCls, tdCls, rowCls, iconBtn, dangerIconBtn, AdminLoading } from '@/features/admin/components/ui'
 import { useFetch } from '@/hooks/use-fetch'
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
 import type { Package, PackageStatus } from '@/types'
@@ -12,8 +13,6 @@ import { packageCategoryMeta, packageCategoryOrder, packageStatusMeta } from '@/
 type StatusFilter = 'all' | PackageStatus
 type ArchiveFilter = 'active' | 'archived' | 'all'
 
-// includeArchived=true so this admin view can see everything and filter
-// client-side — avoids a refetch every time the admin flips a tab.
 export default function AdminPackagesPage() {
   const { data: packages, loading, refetch } = useFetch<Package[]>('/api/packages?includeArchived=true', [])
   const confirmDialog = useConfirmDialog<Package>()
@@ -63,30 +62,24 @@ export default function AdminPackagesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">Packages</h1>
-          <p className="text-gray-500 text-sm">{filtered.length} of {packages.length} packages</p>
-        </div>
-        <Link href="/admin/packages/new">
-          <Button><Plus size={16} className="mr-1" /> Add Package</Button>
-        </Link>
-      </div>
+      <AdminHeader title="Packages" description={`${filtered.length} of ${packages.length} packages`}>
+        <PrimaryLink href="/admin/packages/new" icon={Plus}>Add Package</PrimaryLink>
+      </AdminHeader>
 
       <div className="flex flex-wrap gap-3">
-        <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}>
+        <select className={adminControl} value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}>
           <option value="all">All Statuses</option>
           <option value="draft">Draft</option>
           <option value="published">Published</option>
           <option value="hidden">Hidden</option>
         </select>
-        <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm" value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
+        <select className={adminControl} value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)}>
           <option value="all">All Categories</option>
           {packageCategoryOrder.map((c) => (
             <option key={c} value={c}>{packageCategoryMeta[c].emoji} {packageCategoryMeta[c].label}</option>
           ))}
         </select>
-        <select className="px-3 py-2 border border-gray-200 rounded-lg text-sm" value={archiveFilter} onChange={(e) => setArchiveFilter(e.target.value as ArchiveFilter)}>
+        <select className={adminControl} value={archiveFilter} onChange={(e) => setArchiveFilter(e.target.value as ArchiveFilter)}>
           <option value="active">Active</option>
           <option value="archived">Archived</option>
           <option value="all">All</option>
@@ -94,42 +87,37 @@ export default function AdminPackagesPage() {
       </div>
 
       {loading ? (
-        <div className="text-center py-12 text-gray-400">Loading...</div>
+        <AdminLoading />
       ) : filtered.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-          <PackageIcon size={40} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500">No packages match these filters.</p>
-        </div>
+        <EmptyState icon={PackageIcon} title="No packages match these filters" description="Try adjusting the filters, or add a new package." action={{ label: 'Add Package', href: '/admin/packages/new' }} />
       ) : (
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 border-b border-gray-100">
+        <div className={tableWrap}>
+          <table className={tableCls}>
+            <thead className={theadCls}>
               <tr>
-                <th className="text-left px-5 py-3 text-gray-600 font-medium">Package</th>
-                <th className="text-left px-5 py-3 text-gray-600 font-medium hidden md:table-cell">Category</th>
-                <th className="text-left px-5 py-3 text-gray-600 font-medium hidden sm:table-cell">Price</th>
-                <th className="text-left px-5 py-3 text-gray-600 font-medium">Status</th>
-                <th className="px-5 py-3"></th>
+                <th className={thCls}>Package</th>
+                <th className={`${thCls} hidden md:table-cell`}>Category</th>
+                <th className={`${thCls} hidden sm:table-cell`}>Price</th>
+                <th className={thCls}>Status</th>
+                <th className={thCls}></th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody>
               {filtered.map((pkg) => (
-                <tr key={pkg._id} className={`hover:bg-gray-50 ${pkg.isArchived ? 'opacity-60' : ''}`}>
-                  <td className="px-5 py-4">
-                    <div className="font-medium text-gray-800">{pkg.title}</div>
-                    <div className="text-xs text-gray-400">{pkg.duration.days}D / {pkg.duration.nights}N · {pkg.slug}</div>
+                <tr key={pkg._id} className={`${rowCls} ${pkg.isArchived ? 'opacity-50' : ''}`}>
+                  <td className={tdCls}>
+                    <div className="font-medium text-white">{pkg.title}</div>
+                    <div className="text-xs text-white/40">{pkg.duration.days}D / {pkg.duration.nights}N · {pkg.slug}</div>
                   </td>
-                  <td className="px-5 py-4 hidden md:table-cell">
-                    <span className={`text-xs px-2 py-1 rounded-full font-medium ${packageCategoryMeta[pkg.category].badgeClass}`}>
+                  <td className={`${tdCls} hidden md:table-cell`}>
+                    <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${packageCategoryMeta[pkg.category].badgeClass}`}>
                       {packageCategoryMeta[pkg.category].emoji} {packageCategoryMeta[pkg.category].label}
                     </span>
                   </td>
-                  <td className="px-5 py-4 text-orange-600 font-semibold hidden sm:table-cell">
-                    ₹{pkg.price.toLocaleString()}
-                  </td>
-                  <td className="px-5 py-4">
+                  <td className={`${tdCls} hidden sm:table-cell font-semibold gilt-text`}>₹{pkg.price.toLocaleString()}</td>
+                  <td className={tdCls}>
                     <select
-                      className={`text-xs px-2 py-1 rounded-full font-medium border-0 ${packageStatusMeta[pkg.status].badgeClass}`}
+                      className={`text-xs px-2.5 py-1 rounded-full font-medium border-0 ${packageStatusMeta[pkg.status].badgeClass}`}
                       value={pkg.status}
                       disabled={busyId === pkg._id}
                       onChange={(e) => changeStatus(pkg, e.target.value as PackageStatus)}
@@ -138,19 +126,15 @@ export default function AdminPackagesPage() {
                       <option value="published">Published</option>
                       <option value="hidden">Hidden</option>
                     </select>
-                    {pkg.isArchived && <span className="ml-2 text-xs text-gray-400">Archived</span>}
+                    {pkg.isArchived && <span className="ml-2 text-xs text-white/40">Archived</span>}
                   </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2 justify-end">
-                      <Button size="sm" variant="ghost" disabled={busyId === pkg._id} onClick={() => toggleArchive(pkg)} title={pkg.isArchived ? 'Unarchive' : 'Archive'}>
-                        {pkg.isArchived ? <ArchiveRestore size={15} /> : <Archive size={15} />}
-                      </Button>
-                      <Link href={`/admin/packages/${pkg._id}/edit`}>
-                        <Button size="sm" variant="ghost"><Edit size={15} /></Button>
-                      </Link>
-                      <Button size="sm" variant="destructive" onClick={() => confirmDialog.ask(pkg)}>
-                        <Trash2 size={15} />
-                      </Button>
+                  <td className={tdCls}>
+                    <div className="flex items-center gap-1 justify-end">
+                      <button className={iconBtn} disabled={busyId === pkg._id} onClick={() => toggleArchive(pkg)} title={pkg.isArchived ? 'Unarchive' : 'Archive'}>
+                        {pkg.isArchived ? <ArchiveRestore size={16} /> : <Archive size={16} />}
+                      </button>
+                      <Link href={`/admin/packages/${pkg._id}/edit`} className={iconBtn} title="Edit"><Edit size={16} /></Link>
+                      <button className={dangerIconBtn} onClick={() => confirmDialog.ask(pkg)} title="Delete"><Trash2 size={16} /></button>
                     </div>
                   </td>
                 </tr>
