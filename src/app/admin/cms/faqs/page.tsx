@@ -1,22 +1,19 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Plus, Trash2, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
+import { ArrowLeft, Plus, Trash2, X, HelpCircle } from 'lucide-react'
 import ConfirmDialog from '@/components/ui/confirm-dialog'
+import EmptyState from '@/components/lux/EmptyState'
+import { AdminHeader, adminControl, luxLabel, primaryBtn, ghostBtn, dangerIconBtn, AdminLoading } from '@/features/admin/components/ui'
 import { useFetch } from '@/hooks/use-fetch'
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
 import type { FAQItem } from '@/types'
-
-const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300'
-const labelClass = 'block text-sm font-medium text-gray-700 mb-1'
 
 function emptyForm() {
   return { question: '', answer: '', category: '', order: 0, published: true }
 }
 
-// Phase 10 CMS — "FAQs". Same list+modal pattern as the Testimonials page.
+// Phase 10 CMS — "FAQs". List + modal pattern.
 export default function AdminFaqsPage() {
   const { data: faqs, loading, refetch } = useFetch<FAQItem[]>('/api/cms/faqs', [])
   const [editing, setEditing] = useState<FAQItem | 'new' | null>(null)
@@ -24,10 +21,7 @@ export default function AdminFaqsPage() {
   const [saving, setSaving] = useState(false)
   const confirmDialog = useConfirmDialog<FAQItem>()
 
-  function openNew() {
-    setForm(emptyForm())
-    setEditing('new')
-  }
+  function openNew() { setForm(emptyForm()); setEditing('new') }
   function openEdit(f: FAQItem) {
     setForm({ question: f.question, answer: f.answer, category: f.category || '', order: f.order, published: f.published })
     setEditing(f)
@@ -37,11 +31,7 @@ export default function AdminFaqsPage() {
     setSaving(true)
     const isNew = editing === 'new'
     const url = isNew ? '/api/cms/faqs' : `/api/cms/faqs/${(editing as FAQItem)._id}`
-    await fetch(url, {
-      method: isNew ? 'POST' : 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
+    await fetch(url, { method: isNew ? 'POST' : 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(form) })
     setSaving(false)
     setEditing(null)
     refetch()
@@ -56,36 +46,30 @@ export default function AdminFaqsPage() {
 
   return (
     <div className="space-y-6">
-      <Link href="/admin/cms" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 w-fit">
-        <ArrowLeft size={15} /> Back to CMS
-      </Link>
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-800">FAQs</h1>
-          <p className="text-gray-500 text-sm">{faqs.length} question(s)</p>
-        </div>
-        <Button onClick={openNew}><Plus size={15} className="mr-1" /> Add FAQ</Button>
-      </div>
+      <Link href="/admin/cms" className="flex items-center gap-1.5 text-sm text-gilt-300 hover:underline w-fit"><ArrowLeft size={15} /> Back to CMS</Link>
+      <AdminHeader title="FAQs" description={`${faqs.length} question(s)`}>
+        <button onClick={openNew} className={primaryBtn}><Plus size={15} /> Add FAQ</button>
+      </AdminHeader>
 
       {loading ? (
-        <div className="text-center py-12 text-gray-400">Loading…</div>
+        <AdminLoading />
       ) : faqs.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl shadow-sm text-gray-400">No FAQs yet.</div>
+        <EmptyState icon={HelpCircle} title="No FAQs yet" description="Add your first question to show it on the public FAQ page." />
       ) : (
         <div className="space-y-3">
           {faqs.map((f) => (
-            <div key={f._id} className="bg-white rounded-xl shadow-sm p-5 flex items-start justify-between gap-3">
+            <div key={f._id} className="rounded-3xl glass gilt-border p-5 flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="font-medium text-gray-800">{f.question}</span>
-                  {f.category && <Badge variant="secondary">{f.category}</Badge>}
-                  <Badge variant={f.published ? 'success' : 'secondary'}>{f.published ? 'Published' : 'Hidden'}</Badge>
+                  <span className="font-medium text-white">{f.question}</span>
+                  {f.category && <span className="text-xs px-2 py-0.5 rounded-full bg-white/10 text-white/60">{f.category}</span>}
+                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${f.published ? 'bg-emerald-500/15 text-emerald-300' : 'bg-white/10 text-white/60'}`}>{f.published ? 'Published' : 'Hidden'}</span>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">{f.answer}</p>
+                <p className="text-sm text-white/60 mt-1">{f.answer}</p>
               </div>
-              <div className="flex gap-2 shrink-0">
-                <Button size="sm" variant="outline" onClick={() => openEdit(f)}>Edit</Button>
-                <button onClick={() => confirmDialog.ask(f)} className="text-red-400 hover:text-red-600 p-2"><Trash2 size={15} /></button>
+              <div className="flex items-center gap-2 shrink-0">
+                <button onClick={() => openEdit(f)} className={ghostBtn}>Edit</button>
+                <button onClick={() => confirmDialog.ask(f)} className={dangerIconBtn} title="Delete"><Trash2 size={16} /></button>
               </div>
             </div>
           ))}
@@ -94,49 +78,30 @@ export default function AdminFaqsPage() {
 
       {editing && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setEditing(null)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 space-y-3">
+          <div className="absolute inset-0 bg-ink-950/70 backdrop-blur-sm" onClick={() => setEditing(null)} />
+          <div className="relative glass-strong gilt-border rounded-3xl w-full max-w-md p-6 space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-semibold text-gray-800">{editing === 'new' ? 'Add FAQ' : 'Edit FAQ'}</h3>
-              <button onClick={() => setEditing(null)} className="text-gray-400 hover:text-gray-600"><X size={18} /></button>
+              <h3 className="text-base font-semibold text-white">{editing === 'new' ? 'Add FAQ' : 'Edit FAQ'}</h3>
+              <button onClick={() => setEditing(null)} className="text-white/50 hover:text-white"><X size={18} /></button>
             </div>
-            <div>
-              <label className={labelClass}>Question *</label>
-              <input className={inputClass} value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} />
-            </div>
-            <div>
-              <label className={labelClass}>Answer *</label>
-              <textarea rows={3} className={inputClass} value={form.answer} onChange={(e) => setForm({ ...form, answer: e.target.value })} />
-            </div>
+            <div><label className={luxLabel}>Question *</label><input className={`${adminControl} w-full`} value={form.question} onChange={(e) => setForm({ ...form, question: e.target.value })} /></div>
+            <div><label className={luxLabel}>Answer *</label><textarea rows={3} className={`${adminControl} w-full`} value={form.answer} onChange={(e) => setForm({ ...form, answer: e.target.value })} /></div>
             <div className="grid grid-cols-2 gap-2">
-              <div>
-                <label className={labelClass}>Category</label>
-                <input className={inputClass} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} />
-              </div>
-              <div>
-                <label className={labelClass}>Order</label>
-                <input type="number" className={inputClass} value={form.order} onChange={(e) => setForm({ ...form, order: Number(e.target.value) })} />
-              </div>
+              <div><label className={luxLabel}>Category</label><input className={`${adminControl} w-full`} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value })} /></div>
+              <div><label className={luxLabel}>Order</label><input type="number" className={`${adminControl} w-full`} value={form.order} onChange={(e) => setForm({ ...form, order: Number(e.target.value) })} /></div>
             </div>
-            <div className="flex items-center gap-2">
-              <input type="checkbox" id="published" checked={form.published} onChange={(e) => setForm({ ...form, published: e.target.checked })} />
-              <label htmlFor="published" className="text-sm text-gray-700">Published (visible on /faqs)</label>
-            </div>
+            <label className="flex items-center gap-2 text-sm text-white/70">
+              <input type="checkbox" checked={form.published} onChange={(e) => setForm({ ...form, published: e.target.checked })} className="accent-gilt-500" /> Published (visible on /faqs)
+            </label>
             <div className="flex gap-2 justify-end pt-2">
-              <Button variant="outline" onClick={() => setEditing(null)}>Cancel</Button>
-              <Button disabled={saving || !form.question || !form.answer} onClick={save}>{saving ? 'Saving…' : 'Save'}</Button>
+              <button className={ghostBtn} onClick={() => setEditing(null)}>Cancel</button>
+              <button className={primaryBtn} disabled={saving || !form.question || !form.answer} onClick={save}>{saving ? 'Saving…' : 'Save'}</button>
             </div>
           </div>
         </div>
       )}
 
-      <ConfirmDialog
-        open={confirmDialog.isOpen}
-        title="Delete this FAQ?"
-        loading={confirmDialog.loading}
-        onConfirm={handleDelete}
-        onCancel={confirmDialog.cancel}
-      />
+      <ConfirmDialog open={confirmDialog.isOpen} title="Delete this FAQ?" loading={confirmDialog.loading} onConfirm={handleDelete} onCancel={confirmDialog.cancel} />
     </div>
   )
 }

@@ -1,8 +1,9 @@
 'use client'
 import { useState } from 'react'
-import { Button } from '@/components/ui/button'
 import { Trash2, Plus, Image as ImageIcon } from 'lucide-react'
 import ConfirmDialog from '@/components/ui/confirm-dialog'
+import EmptyState from '@/components/lux/EmptyState'
+import { AdminHeader, Panel, adminControl, primaryBtn, AdminLoading } from '@/features/admin/components/ui'
 import { useFetch } from '@/hooks/use-fetch'
 import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
 import type { GalleryImage } from '@/types'
@@ -37,52 +38,35 @@ export default function AdminGalleryPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Gallery</h1>
-        <p className="text-gray-500 text-sm">{images.length} images</p>
-      </div>
+      <AdminHeader title="Gallery" description={`${images.length} images`} />
 
-      <div className="bg-white rounded-xl shadow-sm p-6">
-        <h2 className="font-semibold text-gray-800 mb-4">Add Image</h2>
+      <Panel title="Add Image">
         <div className="flex flex-col sm:flex-row gap-3">
-          <input
-            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-            placeholder="Image URL (https://...)"
-            value={newUrl} onChange={(e) => setNewUrl(e.target.value)}
-          />
-          <input
-            className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-            placeholder="Caption (optional)"
-            value={newCaption} onChange={(e) => setNewCaption(e.target.value)}
-          />
-          <Button onClick={addImage} disabled={adding || !newUrl}>
-            <Plus size={14} className="mr-1" /> Add
-          </Button>
+          <input className={`${adminControl} flex-1`} placeholder="Image URL (https://...)" value={newUrl} onChange={(e) => setNewUrl(e.target.value)} />
+          <input className={`${adminControl} flex-1`} placeholder="Caption (optional)" value={newCaption} onChange={(e) => setNewCaption(e.target.value)} />
+          <button onClick={addImage} disabled={adding || !newUrl} className={primaryBtn}><Plus size={15} /> Add</button>
         </div>
-      </div>
+      </Panel>
 
       {loading ? (
-        <div className="text-center py-12 text-gray-400">Loading...</div>
+        <AdminLoading />
       ) : images.length === 0 ? (
-        <div className="text-center py-12 bg-white rounded-xl shadow-sm">
-          <ImageIcon size={40} className="mx-auto text-gray-300 mb-3" />
-          <p className="text-gray-500">No images yet. Add gallery photos above.</p>
-        </div>
+        <EmptyState icon={ImageIcon} title="No images yet" description="Add gallery photos using the form above." />
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {images.map((img) => (
-            <div key={img._id} className="bg-white rounded-xl shadow-sm overflow-hidden group">
-              <div className="aspect-square bg-gray-100 relative">
+            <div key={img._id} className="group overflow-hidden rounded-2xl glass gilt-border">
+              <div className="aspect-square bg-ink-800 relative">
                 {/* eslint-disable-next-line @next/next/no-img-element -- admin-supplied gallery URL, same pattern as TourImage/PackageCard */}
                 <img src={img.url} alt={img.caption || 'Gallery'} className="w-full h-full object-cover" />
                 <button
                   onClick={() => confirmDialog.ask(img)}
-                  className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-2 right-2 grid place-items-center w-8 h-8 rounded-full bg-rose-500 text-white opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  <Trash2 size={12} />
+                  <Trash2 size={13} />
                 </button>
               </div>
-              {img.caption && <div className="px-3 py-2 text-xs text-gray-600 truncate">{img.caption}</div>}
+              {img.caption && <div className="px-3 py-2 text-xs text-white/60 truncate">{img.caption}</div>}
             </div>
           ))}
         </div>

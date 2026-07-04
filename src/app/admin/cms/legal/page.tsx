@@ -2,18 +2,15 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Save, CheckCircle2 } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
+import { AdminHeader, Panel, adminControl, primaryBtn, luxLabel } from '@/features/admin/components/ui'
 import type { LegalPage, LegalPageType } from '@/types'
 import { legalPageLabels } from '@/types'
 
 const TYPES: LegalPageType[] = ['terms', 'privacy', 'refund']
 
 // Phase 10 CMS — "Terms" + "Privacy Policy" + "Refund Policy". One page
-// with three tabs since they share the exact same shape (title + long-
-// form content) — same reasoning as LegalPage being one model with a
-// `type` enum rather than three separate models.
+// with three tabs since they share the exact same shape.
 export default function AdminLegalPagesPage() {
   const [active, setActive] = useState<LegalPageType>('terms')
   const [pages, setPages] = useState<Record<LegalPageType, LegalPage | null>>({ terms: null, privacy: null, refund: null })
@@ -56,23 +53,17 @@ export default function AdminLegalPagesPage() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <Link href="/admin/cms" className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 w-fit">
+      <Link href="/admin/cms" className="flex items-center gap-1.5 text-sm text-gilt-300 hover:underline w-fit">
         <ArrowLeft size={15} /> Back to CMS
       </Link>
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">Legal Pages</h1>
-        <p className="text-gray-500 text-sm">Shown in the site footer for every visitor</p>
-      </div>
+      <AdminHeader title="Legal Pages" description="Shown in the site footer for every visitor." />
 
-      <div className="flex gap-2 border-b border-gray-200">
+      <div className="flex gap-2 border-b border-white/10">
         {TYPES.map((t) => (
           <button
             key={t}
             onClick={() => setActive(t)}
-            className={cn(
-              'px-4 py-2 text-sm font-medium border-b-2 -mb-px',
-              active === t ? 'border-orange-600 text-orange-600' : 'border-transparent text-gray-500 hover:text-gray-700'
-            )}
+            className={cn('px-4 py-2 text-sm font-medium border-b-2 -mb-px', active === t ? 'border-gilt-400 text-gilt-300' : 'border-transparent text-white/50 hover:text-white')}
           >
             {legalPageLabels[t]}
           </button>
@@ -80,36 +71,27 @@ export default function AdminLegalPagesPage() {
       </div>
 
       {!current ? (
-        <div className="text-center py-12 text-gray-400">Loading…</div>
+        <div className="text-center py-12 text-white/40">Loading…</div>
       ) : (
-        <Card>
-          <CardContent className="p-5 space-y-3">
+        <Panel>
+          <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Page Title</label>
-              <input
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
-                value={current.title}
-                onChange={(e) => updateCurrent({ title: e.target.value })}
-              />
+              <label className={luxLabel}>Page Title</label>
+              <input className={`${adminControl} w-full`} value={current.title} onChange={(e) => updateCurrent({ title: e.target.value })} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
-              <textarea
-                rows={16}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300 font-mono"
-                value={current.content}
-                onChange={(e) => updateCurrent({ content: e.target.value })}
-              />
-              <p className="text-xs text-gray-400 mt-1">Plain text — line breaks are preserved on the public page.</p>
+              <label className={luxLabel}>Content</label>
+              <textarea rows={16} className={`${adminControl} w-full font-mono`} value={current.content} onChange={(e) => updateCurrent({ content: e.target.value })} />
+              <p className="text-xs text-white/40 mt-1">Plain text — line breaks are preserved on the public page.</p>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </Panel>
       )}
 
-      {saved && <div className="flex items-center gap-1 text-green-600 text-sm"><CheckCircle2 size={15} /> Saved</div>}
-      <Button onClick={save} disabled={saving || !current} className="w-full">
-        <Save size={15} className="mr-1" /> {saving ? 'Saving…' : 'Save'}
-      </Button>
+      {saved && <div className="flex items-center gap-1 text-emerald-300 text-sm"><CheckCircle2 size={15} /> Saved</div>}
+      <button onClick={save} disabled={saving || !current} className={`${primaryBtn} w-full`}>
+        <Save size={15} /> {saving ? 'Saving…' : 'Save'}
+      </button>
     </div>
   )
 }

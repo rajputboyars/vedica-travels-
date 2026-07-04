@@ -9,7 +9,17 @@ interface BarChartProps {
   data: BarChartDatum[]
   color?: string
   height?: number
-  valueFormatter?: (value: number) => string
+  // `format` is a serializable string (not a function) so this Client
+  // Component can be rendered from a Server Component — passing a function
+  // prop across that boundary is a hard Next.js error.
+  format?: 'plain' | 'inr'
+  // Theming hooks so the same chart works on the light and dark surfaces.
+  axisColor?: string
+  labelColor?: string
+}
+
+function formatValue(value: number, format: 'plain' | 'inr') {
+  return format === 'inr' ? `₹${value.toLocaleString('en-IN')}` : value.toLocaleString('en-IN')
 }
 
 // Hand-rolled SVG bar chart — no chart library dependency. This sandbox's
@@ -19,7 +29,7 @@ interface BarChartProps {
 // "free" (Phase 8's requirement) and zero-risk to install. Swappable for
 // Recharts later without touching any call site — this component's
 // props (`data`, `color`, `height`) are the same shape either way.
-export default function BarChart({ data, color = '#ea580c', height = 160, valueFormatter }: BarChartProps) {
+export default function BarChart({ data, color = '#ea580c', height = 160, format = 'plain', axisColor = '#e5e7eb', labelColor = '#9ca3af' }: BarChartProps) {
   const max = Math.max(1, ...data.map((d) => d.value))
   const barWidth = 100 / data.length
 
@@ -39,14 +49,14 @@ export default function BarChart({ data, color = '#ea580c', height = 160, valueF
                 fill={color}
                 rx={1}
               >
-                <title>{`${d.label}: ${valueFormatter ? valueFormatter(d.value) : d.value}`}</title>
+                <title>{`${d.label}: ${formatValue(d.value, format)}`}</title>
               </rect>
             </g>
           )
         })}
-        <line x1={0} y1={height - 20} x2={100} y2={height - 20} stroke="#e5e7eb" strokeWidth={0.5} />
+        <line x1={0} y1={height - 20} x2={100} y2={height - 20} stroke={axisColor} strokeWidth={0.5} />
       </svg>
-      <div className="flex text-[10px] text-gray-400 mt-1">
+      <div className="flex text-[10px] mt-1" style={{ color: labelColor }}>
         {data.map((d, i) => (
           <div key={i} style={{ width: `${barWidth}%` }} className="text-center truncate px-0.5">
             {d.label}
