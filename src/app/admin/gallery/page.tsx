@@ -1,27 +1,18 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Trash2, Plus, Image as ImageIcon } from 'lucide-react'
 import ConfirmDialog from '@/components/ui/confirm-dialog'
+import { useFetch } from '@/hooks/use-fetch'
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
+import type { GalleryImage } from '@/types'
 
 export default function AdminGalleryPage() {
-  const [images, setImages] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: images, loading, refetch } = useFetch<GalleryImage[]>('/api/gallery', [])
   const [newUrl, setNewUrl] = useState('')
   const [newCaption, setNewCaption] = useState('')
   const [adding, setAdding] = useState(false)
-  const [pending, setPending] = useState<any | null>(null)
-  const [deleting, setDeleting] = useState(false)
-
-  async function fetchImages() {
-    try {
-      const res = await fetch('/api/gallery')
-      const data = await res.json()
-      setImages(Array.isArray(data) ? data : [])
-    } finally {
-      setLoading(false)
-    }
-  }
+  const confirmDialog = useConfirmDialog<GalleryImage>()
 
   async function addImage() {
     if (!newUrl.trim()) return
@@ -34,19 +25,15 @@ export default function AdminGalleryPage() {
     setNewUrl('')
     setNewCaption('')
     setAdding(false)
-    fetchImages()
+    refetch()
   }
 
-  async function confirmDelete() {
-    if (!pending) return
-    setDeleting(true)
-    await fetch(`/api/gallery/${pending._id}`, { method: 'DELETE' })
-    setDeleting(false)
-    setPending(null)
-    fetchImages()
+  async function handleDelete() {
+    await confirmDialog.confirm(async (img) => {
+      await fetch(`/api/gallery/${img._id}`, { method: 'DELETE' })
+      refetch()
+    })
   }
-
-  useEffect(() => { fetchImages() }, [])
 
   return (
     <div className="space-y-6">
@@ -61,12 +48,12 @@ export default function AdminGalleryPage() {
           <input
             className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
             placeholder="Image URL (https://...)"
-            value={newUrl} onChange={e => setNewUrl(e.target.value)}
+            value={newUrl} onChange={(e) => setNewUrl(e.target.value)}
           />
           <input
             className="flex-1 px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300"
             placeholder="Caption (optional)"
-            value={newCaption} onChange={e => setNewCaption(e.target.value)}
+            value={newCaption} onChange={(e) => setNewCaption(e.target.value)}
           />
           <Button onClick={addImage} disabled={adding || !newUrl}>
             <Plus size={14} className="mr-1" /> Add
@@ -86,9 +73,10 @@ export default function AdminGalleryPage() {
           {images.map((img) => (
             <div key={img._id} className="bg-white rounded-xl shadow-sm overflow-hidden group">
               <div className="aspect-square bg-gray-100 relative">
+                {/* eslint-disable-next-line @next/next/no-img-element -- admin-supplied gallery URL, same pattern as TourImage/PackageCard */}
                 <img src={img.url} alt={img.caption || 'Gallery'} className="w-full h-full object-cover" />
                 <button
-                  onClick={() => setPending(img)}
+                  onClick={() => confirmDialog.ask(img)}
                   className="absolute top-2 right-2 bg-red-600 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
                   <Trash2 size={12} />
@@ -101,12 +89,12 @@ export default function AdminGalleryPage() {
       )}
 
       <ConfirmDialog
-        open={!!pending}
+        open={confirmDialog.isOpen}
         title="Delete this image?"
         message="This image will be removed from the gallery."
-        loading={deleting}
-        onConfirm={confirmDelete}
-        onCancel={() => setPending(null)}
+        loading={confirmDialog.loading}
+        onConfirm={handleDelete}
+        onCancel={confirmDialog.cancel}
       />
     </div>
   )

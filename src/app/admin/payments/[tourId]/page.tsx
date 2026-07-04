@@ -4,22 +4,14 @@ import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft, Phone, CheckCircle2, XCircle, Download, Image as ImageIcon, Printer, IndianRupee } from 'lucide-react'
 import { downloadCSV, bookingsToRows } from '@/lib/export'
-
-const payStyles: Record<string, string> = {
-  pending: 'bg-gray-100 text-gray-600',
-  screenshot_received: 'bg-amber-100 text-amber-700',
-  confirmed: 'bg-green-100 text-green-700',
-  rejected: 'bg-red-100 text-red-700',
-}
-const payLabels: Record<string, string> = {
-  pending: 'Pending', screenshot_received: 'To Verify', confirmed: 'Confirmed', rejected: 'Rejected',
-}
+import type { Tour, Booking } from '@/types'
+import PaymentStatusBadge from '@/features/payments/components/PaymentStatusBadge'
 
 export default function TourPaymentsPage() {
   const { tourId } = useParams() as { tourId: string }
   const router = useRouter()
-  const [tour, setTour] = useState<any>(null)
-  const [bookings, setBookings] = useState<any[]>([])
+  const [tour, setTour] = useState<Tour | null>(null)
+  const [bookings, setBookings] = useState<Booking[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
   const [viewShot, setViewShot] = useState<string | null>(null)
@@ -28,14 +20,14 @@ export default function TourPaymentsPage() {
 
   async function load() {
     const [tr, bk] = await Promise.all([
-      fetch(`/api/tours/${tourId}`).then(r => r.ok ? r.json() : null),
-      fetch(`/api/tours/${tourId}/bookings`).then(r => r.ok ? r.json() : []),
+      fetch(`/api/tours/${tourId}`).then((r) => (r.ok ? r.json() : null)),
+      fetch(`/api/tours/${tourId}/bookings`).then((r) => (r.ok ? r.json() : [])),
     ])
     setTour(tr)
     setBookings(Array.isArray(bk) ? bk : [])
     setLoading(false)
   }
-  useEffect(() => { load() }, [tourId])
+  useEffect(() => { load() }, [tourId]) // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/set-state-in-effect
 
   async function updatePayment(id: string, data: Record<string, unknown>) {
     setBusy(id)
@@ -46,7 +38,7 @@ export default function TourPaymentsPage() {
     setBusy(null)
   }
 
-  function startEdit(b: any) {
+  function startEdit(b: Booking) {
     setEditId(b._id)
     setEdit({ amountPaid: String(b.amountPaid || ''), paymentRef: b.paymentRef || '', paymentNote: b.paymentNote || '' })
   }
@@ -58,9 +50,9 @@ export default function TourPaymentsPage() {
   if (loading) return <div className="text-center py-12 text-gray-400">Loading...</div>
 
   const expected = bookings.reduce((s, b) => s + (b.totalAmount || 0), 0)
-  const collected = bookings.reduce((s, b) => s + (b.paymentStatus === 'confirmed' ? (b.amountPaid || 0) : 0), 0)
+  const collected = bookings.reduce((s, b) => s + (b.paymentStatus === 'confirmed' ? b.amountPaid || 0 : 0), 0)
   const pendingAmt = expected - collected
-  const toVerify = bookings.filter(b => b.paymentStatus === 'screenshot_received').length
+  const toVerify = bookings.filter((b) => b.paymentStatus === 'screenshot_received').length
 
   function exportCsv() {
     const safe = (tour?.title || 'trip').replace(/[^a-z0-9]+/gi, '-').toLowerCase()
@@ -81,7 +73,6 @@ export default function TourPaymentsPage() {
         </div>
       </div>
 
-      {/* Totals */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: 'Expected', value: expected, color: 'bg-blue-50 border-blue-200 text-blue-700' },
@@ -118,19 +109,16 @@ export default function TourPaymentsPage() {
                 <div className="text-right">
                   <div className="text-sm text-gray-500">Total <span className="font-semibold text-gray-800">₹{(b.totalAmount || 0).toLocaleString()}</span></div>
                   <div className="text-sm text-gray-500">Paid <span className="font-semibold text-green-600">₹{(b.amountPaid || 0).toLocaleString()}</span></div>
-                  <span className={`inline-block mt-1 text-xs px-2 py-0.5 rounded-full font-medium ${payStyles[b.paymentStatus] || payStyles.pending}`}>
-                    {payLabels[b.paymentStatus] || 'Pending'}
-                  </span>
+                  <div className="mt-1"><PaymentStatusBadge status={b.paymentStatus} /></div>
                 </div>
               </div>
 
               {b.paymentRef && <div className="text-xs text-gray-500 mt-2">Ref: <span className="font-mono">{b.paymentRef}</span></div>}
               {b.paymentNote && <div className="text-xs text-gray-500 italic mt-1">{b.paymentNote}</div>}
 
-              {/* Actions */}
               <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-gray-100">
                 {b.paymentScreenshot ? (
-                  <button onClick={() => setViewShot(b.paymentScreenshot)} className="text-xs flex items-center gap-1 text-blue-600 hover:underline">
+                  <button onClick={() => setViewShot(b.paymentScreenshot!)} className="text-xs flex items-center gap-1 text-blue-600 hover:underline">
                     <ImageIcon size={13} /> View Screenshot
                   </button>
                 ) : (
@@ -150,12 +138,11 @@ export default function TourPaymentsPage() {
                 <Button size="sm" variant="outline" onClick={() => startEdit(b)}>Edit</Button>
               </div>
 
-              {/* Edit row */}
               {editId === b._id && (
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-3 gap-2 bg-gray-50 rounded-lg p-3">
-                  <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" type="number" placeholder="Amount paid" value={edit.amountPaid} onChange={e => setEdit({ ...edit, amountPaid: e.target.value })} />
-                  <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Payment ref / UTR" value={edit.paymentRef} onChange={e => setEdit({ ...edit, paymentRef: e.target.value })} />
-                  <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Note" value={edit.paymentNote} onChange={e => setEdit({ ...edit, paymentNote: e.target.value })} />
+                  <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" type="number" placeholder="Amount paid" value={edit.amountPaid} onChange={(e) => setEdit({ ...edit, amountPaid: e.target.value })} />
+                  <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Payment ref / UTR" value={edit.paymentRef} onChange={(e) => setEdit({ ...edit, paymentRef: e.target.value })} />
+                  <input className="px-3 py-2 border border-gray-200 rounded-lg text-sm" placeholder="Note" value={edit.paymentNote} onChange={(e) => setEdit({ ...edit, paymentNote: e.target.value })} />
                   <div className="sm:col-span-3 flex gap-2">
                     <Button size="sm" onClick={() => saveEdit(b._id)}>Save</Button>
                     <Button size="sm" variant="outline" onClick={() => setEditId(null)}>Cancel</Button>
@@ -167,14 +154,14 @@ export default function TourPaymentsPage() {
         </div>
       )}
 
-      {/* Screenshot modal */}
       {viewShot && (
         <div className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4" onClick={() => setViewShot(null)}>
-          <div className="bg-white rounded-xl p-3 max-w-lg w-full" onClick={e => e.stopPropagation()}>
+          <div className="bg-white rounded-xl p-3 max-w-lg w-full" onClick={(e) => e.stopPropagation()}>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-700">Payment Screenshot</span>
               <button onClick={() => setViewShot(null)} className="text-gray-400 hover:text-gray-600"><XCircle size={18} /></button>
             </div>
+            {/* eslint-disable-next-line @next/next/no-img-element -- user-uploaded payment screenshot (data URL), not an optimizable remote image */}
             <img src={viewShot} alt="Payment screenshot" className="w-full rounded-lg" />
           </div>
         </div>

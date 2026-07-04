@@ -1,8 +1,17 @@
+import Link from 'next/link'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Lock, User, Phone } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import { Lock, User, Phone, Settings2 } from 'lucide-react'
+import { getSiteSettings } from '@/services/cms.service'
 
-export default function AdminSettingsPage() {
+// Phase 10 CMS -- Contact Information now reads from SiteSettings
+// (editable at /admin/cms/site-settings) instead of the frozen
+// config/site.ts constants, so this card stays in sync with what the
+// Navbar/Footer/Contact page actually display.
+export default async function AdminSettingsPage() {
+  const settings = await getSiteSettings()
+
   return (
     <div className="space-y-6 max-w-2xl">
       <div>
@@ -19,12 +28,17 @@ export default function AdminSettingsPage() {
         <CardContent className="space-y-3">
           <div className="flex items-center justify-between py-2 border-b border-gray-100">
             <span className="text-sm text-gray-600">Email</span>
-            <span className="text-sm font-medium">admin@vedica.com</span>
+            <span className="text-sm font-medium">{settings.contact.email}</span>
           </div>
           <div className="flex items-center justify-between py-2">
             <span className="text-sm text-gray-600">Password</span>
             <Badge variant="secondary">Set via environment variables</Badge>
           </div>
+          <p className="text-xs text-gray-400 pt-2">
+            Single-admin credentials today. A database-backed, multi-admin, role-based login is a
+            natural next step once more than one person needs access — see the auth notes in
+            src/lib/auth.ts before building that out.
+          </p>
         </CardContent>
       </Card>
 
@@ -35,19 +49,24 @@ export default function AdminSettingsPage() {
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
-          <div className="flex items-center justify-between py-2 border-b border-gray-100">
-            <span className="text-gray-600">Primary Phone</span>
-            <span className="font-medium">9773834051</span>
-          </div>
-          <div className="flex items-center justify-between py-2 border-b border-gray-100">
-            <span className="text-gray-600">Secondary Phone</span>
-            <span className="font-medium">8864910917</span>
-          </div>
+          {settings.contact.phones.map((phone, i) => (
+            <div key={phone} className="flex items-center justify-between py-2 border-b border-gray-100">
+              <span className="text-gray-600">{i === 0 ? 'Primary Phone' : 'Secondary Phone'}</span>
+              <span className="font-medium">{phone}</span>
+            </div>
+          ))}
           <div className="flex items-center justify-between py-2">
             <span className="text-gray-600">Contact Person</span>
-            <span className="font-medium">YOGESH THAKUR</span>
+            <span className="font-medium">{settings.founder}</span>
           </div>
-          <p className="text-xs text-gray-400 mt-3">To update contact info, modify the Footer and Navbar components in the source code.</p>
+          <Link href="/admin/cms/site-settings">
+            <Button variant="outline" size="sm" className="mt-2">
+              <Settings2 size={14} className="mr-2" /> Edit Contact & Site Settings
+            </Button>
+          </Link>
+          <p className="text-xs text-gray-400 mt-3">
+            This is now managed from the Website CMS, not src/config/site.ts — it drives the Navbar, Footer, and every contact link site-wide.
+          </p>
         </CardContent>
       </Card>
 
@@ -61,10 +80,10 @@ export default function AdminSettingsPage() {
           <div className="bg-gray-900 text-green-400 rounded-lg p-4 text-xs font-mono space-y-1">
             <div>MONGODB_URI=mongodb://...</div>
             <div>NEXTAUTH_SECRET=your-secret</div>
-            <div>ADMIN_EMAIL=admin@vedica.com</div>
-            <div>ADMIN_PASSWORD=admin123</div>
+            <div>ADMIN_EMAIL={settings.contact.email}</div>
+            <div>ADMIN_PASSWORD=your-password</div>
           </div>
-          <p className="text-xs text-gray-400 mt-2">Update these in your .env.local file to change credentials.</p>
+          <p className="text-xs text-gray-400 mt-2">Update these in your .env.local file (see .env.example) to change credentials.</p>
         </CardContent>
       </Card>
     </div>

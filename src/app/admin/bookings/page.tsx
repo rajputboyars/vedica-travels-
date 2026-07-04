@@ -1,48 +1,34 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Phone, Trash2, CheckCircle, XCircle, ChevronDown, ChevronUp, User } from 'lucide-react'
 import ConfirmDialog from '@/components/ui/confirm-dialog'
+import { useFetch } from '@/hooks/use-fetch'
+import { useConfirmDialog } from '@/hooks/use-confirm-dialog'
+import { idTypeLabels, type Booking, type BookingStatus } from '@/types'
+import AttendanceBadge from '@/features/passengers/components/AttendanceBadge'
 
-const idTypeLabels: Record<string, string> = {
-  aadhar: 'Aadhar', pan: 'PAN', passport: 'Passport',
-  driving_license: 'DL', voter_id: 'Voter ID',
+const statusColor: Record<BookingStatus, string> = {
+  pending: 'bg-amber-100 text-amber-700',
+  confirmed: 'bg-green-100 text-green-700',
+  cancelled: 'bg-red-100 text-red-700',
 }
 
 export default function AdminBookingsPage() {
-  const [bookings, setBookings] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: bookings, loading, refetch } = useFetch<Booking[]>('/api/bookings', [])
   const [expanded, setExpanded] = useState<string | null>(null)
-  const [pending, setPending] = useState<any | null>(null)
-  const [deleting, setDeleting] = useState(false)
+  const confirmDialog = useConfirmDialog<Booking>()
 
-  async function fetchBookings() {
-    const res = await fetch('/api/bookings', { cache: 'no-store' })
-    const data = await res.json()
-    setBookings(Array.isArray(data) ? data : [])
-    setLoading(false)
-  }
-
-  async function updateStatus(id: string, status: string) {
+  async function updateStatus(id: string, status: BookingStatus) {
     await fetch(`/api/bookings/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status }) })
-    fetchBookings()
+    refetch()
   }
 
-  async function confirmDelete() {
-    if (!pending) return
-    setDeleting(true)
-    await fetch(`/api/bookings/${pending._id}`, { method: 'DELETE' })
-    setDeleting(false)
-    setPending(null)
-    fetchBookings()
-  }
-
-  useEffect(() => { fetchBookings() }, [])
-
-  const statusColor: Record<string, string> = {
-    pending: 'bg-amber-100 text-amber-700',
-    confirmed: 'bg-green-100 text-green-700',
-    cancelled: 'bg-red-100 text-red-700',
+  async function handleDelete() {
+    await confirmDialog.confirm(async (booking) => {
+      await fetch(`/api/bookings/${booking._id}`, { method: 'DELETE' })
+      refetch()
+    })
   }
 
   const totalPassengers = bookings.reduce((s, b) => s + (b.passengers?.length || b.numPersons || 0), 0)
@@ -62,7 +48,6 @@ export default function AdminBookingsPage() {
         <div className="space-y-3">
           {bookings.map((b) => (
             <div key={b._id} className="bg-white rounded-xl shadow-sm overflow-hidden">
-              {/* Booking header row */}
               <div className="flex items-center justify-between px-5 py-4">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div>
@@ -87,7 +72,7 @@ export default function AdminBookingsPage() {
                       </Button>
                     </>
                   )}
-                  <Button size="sm" variant="destructive" onClick={() => setPending(b)}>
+                  <Button size="sm" variant="destructive" onClick={() => confirmDialog.ask(b)}>
                     <Trash2 size={14} />
                   </Button>
                   <button onClick={() => setExpanded(expanded === b._id ? null : b._id)} className="text-gray-400 hover:text-gray-600 p-1">
@@ -96,7 +81,6 @@ export default function AdminBookingsPage() {
                 </div>
               </div>
 
-              {/* Expanded details */}
               {expanded === b._id && (
                 <div className="border-t border-gray-100 px-5 py-4 bg-gray-50 space-y-4">
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
@@ -112,7 +96,7 @@ export default function AdminBookingsPage() {
                   </div>
 
                   {b.message && (
-                    <p className="text-sm text-gray-600 italic bg-white rounded-lg p-3 border border-gray-100">"{b.message}"</p>
+                    <p className="text-sm text-gray-600 italic bg-white rounded-lg p-3 border border-gray-100">&quot;{b.message}&quot;</p>
                   )}
 
                   {b.passengers?.length > 0 && (
@@ -134,7 +118,7 @@ export default function AdminBookingsPage() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-gray-50">
-                            {b.passengers.map((p: any, i: number) => (
+                            {b.passengers.map((p, i) => (
                               <tr key={i} className="hover:bg-gray-50">
                                 <td className="px-3 py-2.5 text-gray-400">{i + 1}</td>
                                 <td className="px-3 py-2.5 font-medium text-gray-800">{p.name}</td>
@@ -142,15 +126,7 @@ export default function AdminBookingsPage() {
                                 <td className="px-3 py-2.5 text-gray-600 capitalize">{p.gender}</td>
                                 <td className="px-3 py-2.5 text-gray-600">{idTypeLabels[p.idType] || p.idType}</td>
                                 <td className="px-3 py-2.5 font-mono text-gray-700">{p.idNumber}</td>
-                                <td className="px-3 py-2.5">
-                                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                                    p.attendance === 'present' ? 'bg-green-100 text-green-700' :
-                                    p.attendance === 'absent'  ? 'bg-red-100 text-red-700' :
-                                    'bg-gray-100 text-gray-500'
-                                  }`}>
-                                    {p.attendance === 'not_marked' || !p.attendance ? 'Not Marked' : p.attendance}
-                                  </span>
-                                </td>
+                                <td className="px-3 py-2.5"><AttendanceBadge attendance={p.attendance} /></td>
                               </tr>
                             ))}
                           </tbody>
@@ -166,12 +142,12 @@ export default function AdminBookingsPage() {
       )}
 
       <ConfirmDialog
-        open={!!pending}
+        open={confirmDialog.isOpen}
         title="Delete this booking?"
-        message={pending ? `${pending.name}'s booking (${pending.bookingRef || ''}) will be permanently removed.` : ''}
-        loading={deleting}
-        onConfirm={confirmDelete}
-        onCancel={() => setPending(null)}
+        message={confirmDialog.pending ? `${confirmDialog.pending.name}'s booking (${confirmDialog.pending.bookingRef || ''}) will be permanently removed.` : ''}
+        loading={confirmDialog.loading}
+        onConfirm={handleDelete}
+        onCancel={confirmDialog.cancel}
       />
     </div>
   )

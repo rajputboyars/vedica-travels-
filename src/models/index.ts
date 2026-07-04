@@ -1,0 +1,14 @@
+// Barrel export. New models (e.g. a future Review or Offer collection)
+// plug in here without touching Tour/Booking/Gallery.
+export { default as Tour } from './Tour'
+export { default as Booking } from './Booking'
+export { default as Gallery } from './Gallery'
+export { default as User } from './User'
+export { default as Package } from './Package'
+export { default as Registration } from './Registration'
+export { default as SiteSettings } from './SiteSettings'
+export { default as HomepageContent } from './HomepageContent'
+export { default as Testimonial } from './Testimonial'
+export { default as Blog } from './Blog'
+export { default as FAQItem } from './FAQItem'
+export { default as LegalPage } from './LegalPage'

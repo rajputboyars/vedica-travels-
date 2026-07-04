@@ -1,4 +1,6 @@
-// Lightweight client-side exporters (no external dependencies).
+// Lightweight client-side exporters (no external dependencies — keeps the
+// bundle free per the "free and open-source only" project rule).
+import type { Booking } from '@/types'
 
 function csvCell(v: unknown): string {
   const s = v == null ? '' : String(v)
@@ -7,7 +9,7 @@ function csvCell(v: unknown): string {
 }
 
 export function downloadCSV(filename: string, rows: (string | number | undefined)[][]) {
-  const csv = rows.map(r => r.map(csvCell).join(',')).join('\n')
+  const csv = rows.map((r) => r.map(csvCell).join(',')).join('\n')
   const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
   triggerDownload(blob, filename.endsWith('.csv') ? filename : `${filename}.csv`)
 }
@@ -24,7 +26,7 @@ export function triggerDownload(blob: Blob, filename: string) {
 }
 
 // Builds a passenger-level export from a list of bookings.
-export function bookingsToRows(bookings: any[]): (string | number | undefined)[][] {
+export function bookingsToRows(bookings: Booking[]): (string | number | undefined)[][] {
   const header = [
     'Booking Ref', 'Lead Contact', 'Phone', 'Passenger', 'Age', 'Gender',
     'ID Type', 'ID Number', 'Attendance', 'Booking Status',
@@ -32,7 +34,7 @@ export function bookingsToRows(bookings: any[]): (string | number | undefined)[]
   ]
   const rows: (string | number | undefined)[][] = [header]
   for (const b of bookings) {
-    const passengers = b.passengers?.length ? b.passengers : [{ name: b.name }]
+    const passengers = b.passengers?.length ? b.passengers : [{ name: b.name } as Booking['passengers'][number]]
     for (const p of passengers) {
       rows.push([
         b.bookingRef, b.name, b.phone, p.name, p.age, p.gender,
