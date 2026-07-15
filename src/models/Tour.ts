@@ -21,6 +21,16 @@ export interface ITour extends Document {
   status: TourStatus
   category: TourCategory
   featured: boolean
+  // Travel Finance module (additive, optional) — operational assignments
+  // shown in the Trip Command Center. Backward compatible: existing tour
+  // documents simply have this undefined.
+  operations?: {
+    busAssigned?: string
+    driverName?: string
+    driverPhone?: string
+    hotelName?: string
+    tourManager?: string
+  }
   createdAt: Date
 }
 
@@ -44,6 +54,13 @@ const TourSchema = new Schema<ITour>(
     status: { type: String, enum: ['upcoming', 'ongoing', 'completed', 'cancelled'], default: 'upcoming' },
     category: { type: String, enum: ['spiritual', 'leisure'], default: 'spiritual' },
     featured: { type: Boolean, default: false },
+    operations: {
+      busAssigned: { type: String },
+      driverName: { type: String },
+      driverPhone: { type: String },
+      hotelName: { type: String },
+      tourManager: { type: String },
+    },
   },
   { timestamps: true }
 )
