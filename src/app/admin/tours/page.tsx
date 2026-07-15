@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { Plus, Edit, Trash2, Calendar } from 'lucide-react'
+import { Plus, Edit, Trash2, Calendar, LineChart } from 'lucide-react'
 import ConfirmDialog from '@/components/ui/confirm-dialog'
 import EmptyState from '@/components/lux/EmptyState'
 import { AdminHeader, PrimaryLink, tableWrap, tableCls, theadCls, thCls, tdCls, rowCls, iconBtn, dangerIconBtn, AdminLoading } from '@/features/admin/components/ui'
@@ -62,6 +62,7 @@ export default function AdminToursPage() {
                   </td>
                   <td className={tdCls}>
                     <div className="flex items-center gap-1 justify-end">
+                      <Link href={`/admin/tours/${tour._id}/finance`} className={iconBtn} title="Finance & Operations"><LineChart size={16} /></Link>
                       <Link href={`/admin/tours/${tour._id}/edit`} className={iconBtn} title="Edit"><Edit size={16} /></Link>
                       <button className={dangerIconBtn} onClick={() => confirmDialog.ask(tour)} title="Delete"><Trash2 size={16} /></button>
                     </div>

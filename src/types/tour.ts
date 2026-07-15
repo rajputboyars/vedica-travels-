@@ -26,7 +26,18 @@ export interface Tour {
   status: TourStatus
   category: TourCategory
   featured: boolean
+  // Travel Finance module (optional) — operational assignments for the Trip
+  // Command Center. Additive; existing tours have this undefined.
+  operations?: TripOperations
   createdAt: string
+}
+
+export interface TripOperations {
+  busAssigned?: string
+  driverName?: string
+  driverPhone?: string
+  hotelName?: string
+  tourManager?: string
 }
 
 export type TourInput = Omit<Tour, '_id' | 'createdAt'>
