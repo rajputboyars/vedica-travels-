@@ -10,9 +10,7 @@ export default function NewBlogPage() {
         <ArrowLeft size={15} /> Back to Blogs
       </Link>
       <AdminHeader title="New Blog Post" />
-      <div className="rounded-3xl bg-white text-gray-900 p-6 sm:p-8 ring-1 ring-gilt-500/20">
-        <BlogForm />
-      </div>
+      <BlogForm />
     </div>
   )
 }

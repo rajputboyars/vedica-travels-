@@ -1,8 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
 import { Plus, X } from 'lucide-react'
+import { Panel, adminControl, luxLabel, primaryBtn, ghostBtn } from '@/features/admin/components/ui'
 import type { Package, PackageItineraryDay, PackageFAQ } from '@/types'
 import { packageCategoryOrder, packageCategoryMeta } from '@/config/package-theme'
 
@@ -10,9 +10,6 @@ interface PackageFormProps {
   initialData?: Package
   packageId?: string
 }
-
-const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-300'
-const labelClass = 'block text-sm font-medium text-gray-700 mb-1'
 
 // Generic "chip list" editor shared by services/pickup-points/etc — same
 // add/remove-by-index pattern as features/tours/components/TourForm.tsx,
@@ -36,17 +33,17 @@ function ChipListEditor({
     <div className="space-y-2">
       <div className="flex gap-2">
         <input
-          className={inputClass}
+          className={`${adminControl} flex-1`}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
           onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), submit())}
         />
-        <Button type="button" size="sm" onClick={submit}><Plus size={14} /></Button>
+        <button type="button" className={ghostBtn} onClick={submit}><Plus size={14} /></button>
       </div>
       <div className="flex flex-wrap gap-2">
         {items.map((s, i) => (
-          <span key={i} className={`flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-full ${chipClass}`}>
+          <span key={i} className={`flex items-center gap-1.5 text-xs px-2.5 py-1.5 rounded-full ${chipClass}`}>
             {s} <button type="button" onClick={() => onRemove(i)}><X size={11} /></button>
           </span>
         ))}
@@ -176,177 +173,174 @@ export default function PackageForm({ initialData, packageId }: PackageFormProps
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-w-3xl">
-      {error && <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">{error}</div>}
+      {error && <div className="bg-rose-500/10 border border-rose-500/25 text-rose-300 text-sm rounded-xl px-4 py-3">{error}</div>}
 
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-gray-800">Basic Information</h2>
+      <Panel title="Basic Information">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="md:col-span-2">
-            <label className={labelClass}>Package Title *</label>
-            <input className={inputClass} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required placeholder="e.g. Char Dham Yatra" />
+            <label className={luxLabel}>Package Title *</label>
+            <input className={`${adminControl} w-full`} value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} required placeholder="e.g. Char Dham Yatra" />
           </div>
           <div className="md:col-span-2">
-            <label className={labelClass}>Short Description</label>
-            <input className={inputClass} value={form.shortDescription} onChange={(e) => setForm({ ...form, shortDescription: e.target.value })} placeholder="One-line hook shown on listing cards" />
+            <label className={luxLabel}>Short Description</label>
+            <input className={`${adminControl} w-full`} value={form.shortDescription} onChange={(e) => setForm({ ...form, shortDescription: e.target.value })} placeholder="One-line hook shown on listing cards" />
           </div>
           <div className="md:col-span-2">
-            <label className={labelClass}>Description *</label>
-            <textarea className={inputClass} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required rows={3} placeholder="Describe this package..." />
+            <label className={luxLabel}>Description *</label>
+            <textarea className={`${adminControl} w-full`} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} required rows={3} placeholder="Describe this package..." />
           </div>
           <div>
-            <label className={labelClass}>Category *</label>
-            <select className={inputClass} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as Package['category'] })}>
+            <label className={luxLabel}>Category *</label>
+            <select className={`${adminControl} w-full`} value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as Package['category'] })}>
               {packageCategoryOrder.map((c) => (
                 <option key={c} value={c}>{packageCategoryMeta[c].emoji} {packageCategoryMeta[c].label}</option>
               ))}
             </select>
           </div>
           <div>
-            <label className={labelClass}>Status</label>
-            <select className={inputClass} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as Package['status'] })}>
+            <label className={luxLabel}>Status</label>
+            <select className={`${adminControl} w-full`} value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as Package['status'] })}>
               <option value="draft">Draft</option>
               <option value="published">Published</option>
               <option value="hidden">Hidden</option>
             </select>
           </div>
           <div>
-            <label className={labelClass}>Price (₹) *</label>
-            <input className={inputClass} type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required placeholder="18500" />
+            <label className={luxLabel}>Price (₹) *</label>
+            <input className={`${adminControl} w-full`} type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })} required placeholder="18500" />
           </div>
           <div>
-            <label className={labelClass}>Total Seats</label>
-            <input className={inputClass} type="number" value={form.totalSeats} onChange={(e) => setForm({ ...form, totalSeats: Number(e.target.value) })} />
+            <label className={luxLabel}>Total Seats</label>
+            <input className={`${adminControl} w-full`} type="number" value={form.totalSeats} onChange={(e) => setForm({ ...form, totalSeats: Number(e.target.value) })} />
           </div>
           <div>
-            <label className={labelClass}>Duration — Days *</label>
-            <input className={inputClass} type="number" min={1} value={form.days} onChange={(e) => setForm({ ...form, days: Number(e.target.value) })} required />
+            <label className={luxLabel}>Duration — Days *</label>
+            <input className={`${adminControl} w-full`} type="number" min={1} value={form.days} onChange={(e) => setForm({ ...form, days: Number(e.target.value) })} required />
           </div>
           <div>
-            <label className={labelClass}>Duration — Nights</label>
-            <input className={inputClass} type="number" min={0} value={form.nights} onChange={(e) => setForm({ ...form, nights: Number(e.target.value) })} />
+            <label className={luxLabel}>Duration — Nights</label>
+            <input className={`${adminControl} w-full`} type="number" min={0} value={form.nights} onChange={(e) => setForm({ ...form, nights: Number(e.target.value) })} />
           </div>
-          <div className="flex items-center gap-2">
-            <input type="checkbox" id="featured" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="rounded" />
-            <label htmlFor="featured" className="text-sm text-gray-700">Featured on homepage</label>
-          </div>
+          <label className="flex items-center gap-2 text-sm text-white/70">
+            <input type="checkbox" checked={form.featured} onChange={(e) => setForm({ ...form, featured: e.target.checked })} className="accent-gilt-500" /> Featured on homepage
+          </label>
         </div>
-      </div>
+      </Panel>
 
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-3">
-        <h2 className="font-semibold text-gray-800">Images (cover / listing)</h2>
-        <ChipListEditor {...chip('images')} placeholder="Image URL" chipClass="bg-orange-100 text-orange-700" />
-      </div>
+      <Panel title="Images (cover / listing)">
+        <ChipListEditor {...chip('images')} placeholder="Image URL" chipClass="bg-gilt-400/15 text-gilt-300" />
+      </Panel>
 
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-3">
-        <h2 className="font-semibold text-gray-800">Gallery (extra photos)</h2>
-        <ChipListEditor {...chip('gallery')} placeholder="Image URL" chipClass="bg-purple-100 text-purple-700" />
-      </div>
+      <Panel title="Gallery (extra photos)">
+        <ChipListEditor {...chip('gallery')} placeholder="Image URL" chipClass="bg-violet-500/15 text-violet-300" />
+      </Panel>
 
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-3">
-        <h2 className="font-semibold text-gray-800">Itinerary</h2>
-        <div className="space-y-2">
-          {form.itinerary.map((day, i) => (
-            <div key={i} className="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
-              <span className="text-xs font-semibold text-orange-600 mt-0.5 shrink-0">Day {day.day}</span>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-800">{day.title}</div>
-                {day.description && <div className="text-xs text-gray-500">{day.description}</div>}
-              </div>
-              <button type="button" onClick={() => removeItineraryDay(i)} className="text-gray-400 hover:text-red-500 shrink-0"><X size={14} /></button>
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          <input className={inputClass} value={newItinerary.title} onChange={(e) => setNewItinerary({ ...newItinerary, title: e.target.value })} placeholder="Day title, e.g. Arrival & Darshan" />
-          <input className={inputClass} value={newItinerary.description} onChange={(e) => setNewItinerary({ ...newItinerary, description: e.target.value })} placeholder="Day description" />
-        </div>
-        <Button type="button" size="sm" onClick={addItineraryDay}><Plus size={14} className="mr-1" /> Add Day {form.itinerary.length + 1}</Button>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-3">
-        <h2 className="font-semibold text-gray-800">Pickup Points</h2>
-        <ChipListEditor {...chip('pickupPoints')} placeholder="e.g. Sector 52, Noida - Metro Pillar 657" chipClass="bg-blue-100 text-blue-700" />
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-3">
-        <h2 className="font-semibold text-gray-800">Included Services</h2>
-        <ChipListEditor {...chip('includedServices')} placeholder="e.g. AC Bus, Breakfast" chipClass="bg-green-100 text-green-700" />
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-3">
-        <h2 className="font-semibold text-gray-800">Excluded Services</h2>
-        <ChipListEditor {...chip('excludedServices')} placeholder="e.g. Lunch, Personal expenses" chipClass="bg-red-100 text-red-700" />
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-3">
-        <h2 className="font-semibold text-gray-800">FAQs</h2>
-        <div className="space-y-2">
-          {form.faqs.map((f, i) => (
-            <div key={i} className="flex items-start gap-3 bg-gray-50 rounded-lg p-3">
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-800">Q: {f.question}</div>
-                <div className="text-xs text-gray-500">A: {f.answer}</div>
-              </div>
-              <button type="button" onClick={() => removeFaq(i)} className="text-gray-400 hover:text-red-500 shrink-0"><X size={14} /></button>
-            </div>
-          ))}
-        </div>
-        <div className="grid grid-cols-1 gap-2">
-          <input className={inputClass} value={newFaq.question} onChange={(e) => setNewFaq({ ...newFaq, question: e.target.value })} placeholder="Question" />
-          <input className={inputClass} value={newFaq.answer} onChange={(e) => setNewFaq({ ...newFaq, answer: e.target.value })} placeholder="Answer" />
-        </div>
-        <Button type="button" size="sm" onClick={addFaq}><Plus size={14} className="mr-1" /> Add FAQ</Button>
-      </div>
-
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-gray-800">Payment (QR Codes) — Phase 5</h2>
-        <div>
-          <label className={labelClass}>Upload Payment QR Code(s)</label>
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="flex items-center gap-2 px-4 py-2 border-2 border-dashed border-orange-300 rounded-lg text-orange-600 text-sm font-medium hover:bg-orange-50 cursor-pointer">
-              Add QR image
-              <input type="file" accept="image/*" className="hidden" onChange={handleQrFile} />
-            </label>
-            {form.qrImages.map((qr, i) => (
-              <div key={i} className="relative">
-                {/* eslint-disable-next-line @next/next/no-img-element -- local file preview via FileReader, same pattern as TourForm's QR upload */}
-                <img src={qr} alt={`QR ${i + 1}`} className="w-16 h-16 object-contain border border-gray-200 rounded-lg bg-white" />
-                <button
-                  type="button"
-                  onClick={() => setForm((prev) => ({ ...prev, qrImages: prev.qrImages.filter((_, idx) => idx !== i) }))}
-                  className="absolute -top-1.5 -right-1.5 bg-white border border-gray-200 rounded-full text-red-500"
-                >
-                  <X size={12} />
-                </button>
+      <Panel title="Itinerary">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            {form.itinerary.map((day, i) => (
+              <div key={i} className="flex items-start gap-3 bg-white/[0.03] rounded-xl p-3 border border-white/5">
+                <span className="text-xs font-semibold text-gilt-300 mt-0.5 shrink-0">Day {day.day}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-white">{day.title}</div>
+                  {day.description && <div className="text-xs text-white/50">{day.description}</div>}
+                </div>
+                <button type="button" onClick={() => removeItineraryDay(i)} className="text-white/40 hover:text-rose-300 shrink-0"><X size={14} /></button>
               </div>
             ))}
           </div>
-          <p className="text-xs text-gray-400 mt-1">Admins can attach one or multiple QR codes — customers see all of them on the payment step.</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <input className={adminControl} value={newItinerary.title} onChange={(e) => setNewItinerary({ ...newItinerary, title: e.target.value })} placeholder="Day title, e.g. Arrival & Darshan" />
+            <input className={adminControl} value={newItinerary.description} onChange={(e) => setNewItinerary({ ...newItinerary, description: e.target.value })} placeholder="Day description" />
+          </div>
+          <button type="button" className={ghostBtn} onClick={addItineraryDay}><Plus size={14} /> Add Day {form.itinerary.length + 1}</button>
         </div>
-        <div>
-          <label className={labelClass}>Payment Instructions / Note</label>
-          <textarea className={inputClass} value={form.paymentNote} onChange={(e) => setForm({ ...form, paymentNote: e.target.value })} rows={2}
-            placeholder="e.g. Scan the QR, pay the total amount, then submit your transaction ID and screenshot." />
-        </div>
-      </div>
+      </Panel>
 
-      <div className="bg-white rounded-xl shadow-sm p-6 space-y-4">
-        <h2 className="font-semibold text-gray-800">SEO</h2>
-        <div>
-          <label className={labelClass}>Meta Title</label>
-          <input className={inputClass} value={form.metaTitle} onChange={(e) => setForm({ ...form, metaTitle: e.target.value })} placeholder="Shown as the browser tab / search result title" />
+      <Panel title="Pickup Points">
+        <ChipListEditor {...chip('pickupPoints')} placeholder="e.g. Sector 52, Noida - Metro Pillar 657" chipClass="bg-sky-500/15 text-sky-300" />
+      </Panel>
+
+      <Panel title="Included Services">
+        <ChipListEditor {...chip('includedServices')} placeholder="e.g. AC Bus, Breakfast" chipClass="bg-emerald-500/15 text-emerald-300" />
+      </Panel>
+
+      <Panel title="Excluded Services">
+        <ChipListEditor {...chip('excludedServices')} placeholder="e.g. Lunch, Personal expenses" chipClass="bg-rose-500/15 text-rose-300" />
+      </Panel>
+
+      <Panel title="FAQs">
+        <div className="space-y-4">
+          <div className="space-y-2">
+            {form.faqs.map((f, i) => (
+              <div key={i} className="flex items-start gap-3 bg-white/[0.03] rounded-xl p-3 border border-white/5">
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-white">Q: {f.question}</div>
+                  <div className="text-xs text-white/50">A: {f.answer}</div>
+                </div>
+                <button type="button" onClick={() => removeFaq(i)} className="text-white/40 hover:text-rose-300 shrink-0"><X size={14} /></button>
+              </div>
+            ))}
+          </div>
+          <div className="grid grid-cols-1 gap-2">
+            <input className={adminControl} value={newFaq.question} onChange={(e) => setNewFaq({ ...newFaq, question: e.target.value })} placeholder="Question" />
+            <input className={adminControl} value={newFaq.answer} onChange={(e) => setNewFaq({ ...newFaq, answer: e.target.value })} placeholder="Answer" />
+          </div>
+          <button type="button" className={ghostBtn} onClick={addFaq}><Plus size={14} /> Add FAQ</button>
         </div>
-        <div>
-          <label className={labelClass}>Meta Description</label>
-          <textarea className={inputClass} value={form.metaDescription} onChange={(e) => setForm({ ...form, metaDescription: e.target.value })} rows={2} placeholder="Shown as the search result snippet" />
+      </Panel>
+
+      <Panel title="Payment (QR Codes)">
+        <div className="space-y-4">
+          <div>
+            <label className={luxLabel}>Upload Payment QR Code(s)</label>
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 border-dashed border-gilt-500/30 text-gilt-300 text-sm font-medium hover:bg-gilt-500/5 cursor-pointer transition-colors">
+                Add QR image
+                <input type="file" accept="image/*" className="hidden" onChange={handleQrFile} />
+              </label>
+              {form.qrImages.map((qr, i) => (
+                <div key={i} className="relative">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- local file preview via FileReader, same pattern as TourForm's QR upload */}
+                  <img src={qr} alt={`QR ${i + 1}`} className="w-16 h-16 object-contain border border-white/10 rounded-lg bg-white" />
+                  <button
+                    type="button"
+                    onClick={() => setForm((prev) => ({ ...prev, qrImages: prev.qrImages.filter((_, idx) => idx !== i) }))}
+                    className="absolute -top-1.5 -right-1.5 grid place-items-center w-5 h-5 bg-ink-900 border border-white/10 rounded-full text-rose-300"
+                  >
+                    <X size={12} />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-white/40 mt-1.5">Admins can attach one or multiple QR codes — customers see all of them on the payment step.</p>
+          </div>
+          <div>
+            <label className={luxLabel}>Payment Instructions / Note</label>
+            <textarea className={`${adminControl} w-full`} value={form.paymentNote} onChange={(e) => setForm({ ...form, paymentNote: e.target.value })} rows={2}
+              placeholder="e.g. Scan the QR, pay the total amount, then submit your transaction ID and screenshot." />
+          </div>
         </div>
-      </div>
+      </Panel>
+
+      <Panel title="SEO">
+        <div className="space-y-4">
+          <div>
+            <label className={luxLabel}>Meta Title</label>
+            <input className={`${adminControl} w-full`} value={form.metaTitle} onChange={(e) => setForm({ ...form, metaTitle: e.target.value })} placeholder="Shown as the browser tab / search result title" />
+          </div>
+          <div>
+            <label className={luxLabel}>Meta Description</label>
+            <textarea className={`${adminControl} w-full`} value={form.metaDescription} onChange={(e) => setForm({ ...form, metaDescription: e.target.value })} rows={2} placeholder="Shown as the search result snippet" />
+          </div>
+        </div>
+      </Panel>
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={loading}>
+        <button type="submit" disabled={loading} className={primaryBtn}>
           {loading ? 'Saving...' : packageId ? 'Update Package' : 'Create Package'}
-        </Button>
-        <Button type="button" variant="outline" onClick={() => router.back()}>Cancel</Button>
+        </button>
+        <button type="button" className={ghostBtn} onClick={() => router.back()}>Cancel</button>
       </div>
     </form>
   )

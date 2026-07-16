@@ -11,9 +11,7 @@ export default async function EditPackagePage({ params }: { params: Promise<{ id
   return (
     <div className="space-y-6">
       <AdminHeader title="Edit Package" description="Update package details." />
-      <div className="rounded-3xl bg-white text-gray-900 p-6 sm:p-8 ring-1 ring-gilt-500/20">
-        <PackageForm initialData={pkg} packageId={id} />
-      </div>
+      <PackageForm initialData={pkg} packageId={id} />
     </div>
   )
 }

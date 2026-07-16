@@ -16,9 +16,7 @@ export default async function EditBlogPage({ params }: { params: Promise<{ id: s
         <ArrowLeft size={15} /> Back to Blogs
       </Link>
       <AdminHeader title="Edit Blog Post" />
-      <div className="rounded-3xl bg-white text-gray-900 p-6 sm:p-8 ring-1 ring-gilt-500/20">
-        <BlogForm initial={blog} />
-      </div>
+      <BlogForm initial={blog} />
     </div>
   )
 }
