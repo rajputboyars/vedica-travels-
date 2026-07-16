@@ -1,18 +1,16 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { User, Lock, Loader2, CheckCircle2, AlertCircle } from 'lucide-react'
+import { luxInputClass, luxLabelClass } from '@/components/lux/Field'
 import { LEGACY_ADMIN_ID } from '@/lib/auth'
 import type { AuthUser } from '@/types'
 
 // Shared "View Profile / Edit Profile" + "Change Password" UI, consumed by
-// both the Admin Profile page (Phase 8) and the Customer Dashboard profile
-// page (Phase 9) — per the standing "no duplicate logic" instruction,
-// there's exactly one implementation of this flow, wired to the exact same
-// GET /api/auth/me, PATCH /api/auth/me, PUT /api/auth/change-password
-// endpoints regardless of which shell it's rendered inside.
+// both the Admin Profile page and the Customer Dashboard profile page —
+// per the standing "no duplicate logic" instruction, there's exactly one
+// implementation of this flow, wired to the exact same GET /api/auth/me,
+// PATCH /api/auth/me, PUT /api/auth/change-password endpoints regardless
+// of which (dark) shell it's rendered inside.
 //
 // The one special case: the legacy NextAuth admin identity (env-var based,
 // id === LEGACY_ADMIN_ID) has no database record to update. Rather than
@@ -45,14 +43,14 @@ export default function ProfileEditor() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-2 text-gray-400 text-sm py-8">
+      <div className="flex items-center gap-2 text-white/40 text-sm py-8">
         <Loader2 size={16} className="animate-spin" /> Loading profile…
       </div>
     )
   }
 
   if (!user) {
-    return <p className="text-sm text-gray-500">Could not load profile. Please sign in again.</p>
+    return <p className="text-sm text-white/50">Could not load profile. Please sign in again.</p>
   }
 
   const isEnvManagedIdentity = user._id === LEGACY_ADMIN_ID
@@ -102,95 +100,70 @@ export default function ProfileEditor() {
 
   return (
     <div className="space-y-6 max-w-2xl">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base flex items-center gap-2">
-            <User size={18} className="text-orange-600" /> Account
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between py-2 border-b border-gray-100">
-            <span className="text-sm text-gray-600">Email</span>
-            <span className="text-sm font-medium">{user.email}</span>
+      <div className="rounded-3xl glass gilt-border p-6">
+        <h2 className="text-base font-medium text-white flex items-center gap-2 mb-5">
+          <User size={18} className="text-gilt-300" /> Account
+        </h2>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between py-2.5 border-b border-white/5">
+            <span className="text-sm text-white/55">Email</span>
+            <span className="text-sm font-medium text-white">{user.email}</span>
           </div>
-          <div className="flex items-center justify-between py-2 border-b border-gray-100">
-            <span className="text-sm text-gray-600">Role</span>
-            <Badge variant="secondary" className="capitalize">{user.role}</Badge>
+          <div className="flex items-center justify-between py-2.5 border-b border-white/5">
+            <span className="text-sm text-white/55">Role</span>
+            <span className="text-xs px-2.5 py-1 rounded-full bg-white/10 text-white/70 capitalize">{user.role}</span>
           </div>
 
           {isEnvManagedIdentity ? (
-            <p className="text-xs text-gray-400 pt-1">
+            <p className="text-xs text-white/40 pt-3 leading-relaxed">
               This admin account is configured via environment variables, not a database record —
               there&apos;s no name/password to edit here. See{' '}
-              <a href="/admin/settings" className="text-orange-600 underline">Settings</a> for how to
+              <a href="/admin/settings" className="text-gilt-300 underline">Settings</a> for how to
               change its email/password.
             </p>
           ) : (
-            <form onSubmit={saveName} className="space-y-3 pt-1">
+            <form onSubmit={saveName} className="space-y-3 pt-3">
               <label className="block">
-                <span className="text-sm text-gray-600 mb-1 block">Name</span>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  required
-                />
+                <span className={luxLabelClass}>Name</span>
+                <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={luxInputClass} required />
               </label>
               {nameMsg && (
-                <p className={`text-xs flex items-center gap-1 ${nameMsg.type === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
+                <p className={`text-xs flex items-center gap-1 ${nameMsg.type === 'ok' ? 'text-emerald-300' : 'text-rose-300'}`}>
                   {nameMsg.type === 'ok' ? <CheckCircle2 size={13} /> : <AlertCircle size={13} />} {nameMsg.text}
                 </p>
               )}
-              <Button type="submit" disabled={savingName} size="sm">
+              <button type="submit" disabled={savingName} className="inline-flex items-center rounded-full bg-gradient-to-r from-gilt-300 to-gilt-500 px-5 py-2 text-sm font-semibold text-ink-900 gilt-glow disabled:opacity-60">
                 {savingName ? 'Saving…' : 'Save Changes'}
-              </Button>
+              </button>
             </form>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       {!isEnvManagedIdentity && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center gap-2">
-              <Lock size={18} className="text-orange-600" /> Change Password
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={savePassword} className="space-y-3">
-              <label className="block">
-                <span className="text-sm text-gray-600 mb-1 block">Current Password</span>
-                <input
-                  type="password"
-                  value={currentPassword}
-                  onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  required
-                />
-              </label>
-              <label className="block">
-                <span className="text-sm text-gray-600 mb-1 block">New Password</span>
-                <input
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  minLength={8}
-                  className="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
-                  required
-                />
-              </label>
-              {passwordMsg && (
-                <p className={`text-xs flex items-center gap-1 ${passwordMsg.type === 'ok' ? 'text-green-600' : 'text-red-500'}`}>
-                  {passwordMsg.type === 'ok' ? <CheckCircle2 size={13} /> : <AlertCircle size={13} />} {passwordMsg.text}
-                </p>
-              )}
-              <Button type="submit" disabled={savingPassword} size="sm">
-                {savingPassword ? 'Updating…' : 'Update Password'}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+        <div className="rounded-3xl glass gilt-border p-6">
+          <h2 className="text-base font-medium text-white flex items-center gap-2 mb-5">
+            <Lock size={18} className="text-gilt-300" /> Change Password
+          </h2>
+          <form onSubmit={savePassword} className="space-y-3">
+            <label className="block">
+              <span className={luxLabelClass}>Current Password</span>
+              <input type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} className={luxInputClass} required />
+            </label>
+            <label className="block">
+              <span className={luxLabelClass}>New Password</span>
+              <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} minLength={8} className={luxInputClass} required />
+            </label>
+            {passwordMsg && (
+              <p className={`text-xs flex items-center gap-1 ${passwordMsg.type === 'ok' ? 'text-emerald-300' : 'text-rose-300'}`}>
+                {passwordMsg.type === 'ok' ? <CheckCircle2 size={13} /> : <AlertCircle size={13} />} {passwordMsg.text}
+              </p>
+            )}
+            <button type="submit" disabled={savingPassword} className="inline-flex items-center rounded-full bg-gradient-to-r from-gilt-300 to-gilt-500 px-5 py-2 text-sm font-semibold text-ink-900 gilt-glow disabled:opacity-60">
+              {savingPassword ? 'Updating…' : 'Update Password'}
+            </button>
+          </form>
+        </div>
       )}
     </div>
   )
