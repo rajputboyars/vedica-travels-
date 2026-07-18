@@ -147,6 +147,31 @@ export const expenseCategoryMeta: Record<ExpenseCategory, { label: string; defau
   miscellaneous: { label: 'Miscellaneous', defaultType: 'fixed' },
 }
 
+// Keyword → category map so the expense form can infer a category from the
+// expense name instead of asking the admin to pick one manually (the name
+// already implies it for every example in the spec — "Bus Rent", "Diesel",
+// "Driver Salary" — so a second, redundant selector added friction without
+// adding information). Order matters: first matching keyword wins.
+const CATEGORY_KEYWORDS: [ExpenseCategory, string[]][] = [
+  ['transport', ['bus', 'coach', 'volvo', 'transport', 'taxi', 'cab', 'vehicle']],
+  ['fuel', ['diesel', 'fuel', 'petrol', 'gas']],
+  ['salary', ['salary', 'driver', 'helper', 'staff', 'wages', 'allowance']],
+  ['accommodation', ['hotel', 'stay', 'accommodation', 'room', 'lodging', 'resort']],
+  ['food', ['breakfast', 'lunch', 'dinner', 'meal', 'food']],
+  ['refreshments', ['water', 'snack', 'refreshment', 'tea', 'coffee']],
+  ['guide', ['guide']],
+  ['darshan', ['darshan', 'vip', 'puja', 'pooja']],
+  ['photography', ['photo', 'camera', 'video', 'drone']],
+]
+
+export function guessExpenseCategory(name: string): ExpenseCategory {
+  const lower = name.toLowerCase()
+  for (const [category, keywords] of CATEGORY_KEYWORDS) {
+    if (keywords.some((k) => lower.includes(k))) return category
+  }
+  return 'miscellaneous'
+}
+
 export const vendorTypeMeta: Record<VendorType, { label: string }> = {
   bus: { label: 'Bus Owner' },
   hotel: { label: 'Hotel' },
