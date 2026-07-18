@@ -2,11 +2,9 @@
 import { useState } from 'react'
 import { X } from 'lucide-react'
 import { adminControl, luxLabel, primaryBtn, ghostBtn } from '@/features/admin/components/ui'
-import { expenseCategoryMeta, vendorTypeMeta } from '@/types'
+import { expenseCategoryMeta, guessExpenseCategory, vendorTypeMeta } from '@/types'
 import type { ComputedExpense, ExpenseCategory, ExpenseType, ExpensePaymentStatus, Vendor, VendorWithTotals } from '@/types'
 import { inr } from './FinanceUI'
-
-const CATEGORIES = Object.keys(expenseCategoryMeta) as ExpenseCategory[]
 
 function toForm(e: ComputedExpense | null) {
   return {
@@ -47,9 +45,16 @@ export default function ExpenseModal({
 
   const previewTotal = form.type === 'variable' ? form.rate * confirmedPassengers : form.rate * (form.quantity || 1)
 
-  function setCategory(category: ExpenseCategory) {
-    // Picking a category nudges the fixed/variable default, but the admin can still override.
-    setForm((f) => ({ ...f, category, type: expenseCategoryMeta[category].defaultType }))
+  // Category is no longer a manual field -- it's inferred from the expense
+  // name (see guessExpenseCategory) so admins don't have to pick something
+  // the name already says ("Bus Rent" is obviously Transport). It still
+  // nudges the fixed/variable default the same way manual selection used to,
+  // but only until the admin manually touches Type themselves.
+  const [typeTouched, setTypeTouched] = useState(false)
+
+  function setName(name: string) {
+    const category = guessExpenseCategory(name)
+    setForm((f) => ({ ...f, name, category, type: typeTouched ? f.type : expenseCategoryMeta[category].defaultType }))
   }
 
   async function save() {
@@ -86,17 +91,12 @@ export default function ExpenseModal({
         <div className="grid grid-cols-2 gap-3">
           <div className="col-span-2">
             <label className={luxLabel}>Expense Name *</label>
-            <input className={`${adminControl} w-full`} value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="e.g. Lunch, Bus Rent" />
-          </div>
-          <div>
-            <label className={luxLabel}>Category</label>
-            <select className={`${adminControl} w-full`} value={form.category} onChange={(e) => setCategory(e.target.value as ExpenseCategory)}>
-              {CATEGORIES.map((c) => <option key={c} value={c}>{expenseCategoryMeta[c].label}</option>)}
-            </select>
+            <input className={`${adminControl} w-full`} value={form.name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Lunch, Bus Rent" />
+            {form.name.trim() && <p className="mt-1 text-xs text-white/40">Category: {expenseCategoryMeta[form.category].label} (auto-detected from name)</p>}
           </div>
           <div>
             <label className={luxLabel}>Type</label>
-            <select className={`${adminControl} w-full`} value={form.type} onChange={(e) => setForm({ ...form, type: e.target.value as ExpenseType })}>
+            <select className={`${adminControl} w-full`} value={form.type} onChange={(e) => { setTypeTouched(true); setForm({ ...form, type: e.target.value as ExpenseType }) }}>
               <option value="fixed">Fixed (flat cost)</option>
               <option value="variable">Variable (per passenger)</option>
             </select>

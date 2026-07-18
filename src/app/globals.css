@@ -93,6 +93,12 @@ html { scroll-behavior: smooth; }
   background-color: var(--color-ink-900);
   color: #eef2f8;
   font-family: var(--font-sans);
+  /* Tells the browser to draw native form controls (select dropdown
+     popups, date/time pickers) with its dark UI instead of the OS
+     default light one -- without this, an open <select> shows a
+     white popup with a jarring bright-blue highlighted option that
+     clashes with the rest of the dark theme. */
+  color-scheme: dark;
 }
 .lux ::selection { background: var(--color-gilt-500); color: #07111f; }
 
@@ -123,8 +129,18 @@ html { scroll-behavior: smooth; }
   background-clip: text;
   color: transparent;
 }
-.gilt-border {
-  position: relative;
+/* Declared inside Tailwind's `base` layer (lower priority than its
+   `utilities` layer, where .absolute/.fixed/.sticky live) so a positioning
+   utility on the same element always wins -- CSS cascade layers rank by
+   layer first, specificity second, so plain unlayered CSS here (the
+   default for anything after `@import "tailwindcss"`) would beat utility
+   classes outright regardless of selector specificity, silently breaking
+   position:absolute wherever gilt-border is combined with it (e.g.
+   dropdown menus, modals). */
+@layer base {
+  .gilt-border {
+    position: relative;
+  }
 }
 .gilt-border::before {
   content: "";
