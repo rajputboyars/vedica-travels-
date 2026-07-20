@@ -272,17 +272,23 @@ export default async function HomePage() {
               <div className="space-y-8">
                 {upcoming.slice(0, 5).map((t, i) => (
                   <Reveal key={t._id} delay={i * 60}>
-                    <div className={`relative sm:grid sm:grid-cols-2 sm:gap-10 ${i % 2 ? 'sm:[direction:rtl]' : ''}`}>
+                    <div className="relative sm:grid sm:grid-cols-2 sm:gap-10">
                       <span className="absolute -left-8 sm:left-1/2 top-2 grid place-items-center w-4 h-4 rounded-full bg-gilt-400 ring-4 ring-gilt-500/20 sm:-translate-x-1/2" />
-                      <div className={`[direction:ltr] ${i % 2 ? 'sm:col-start-2' : ''}`}>
-                        <Link href={`/tours/${t._id}`} className="hover-lift group block rounded-3xl glass gilt-border p-6">
+                      {/* Even rows render in column 1 (default placement); odd rows
+                          are explicitly pushed to column 2 -- this alternates cards
+                          left/right of the centre line. (Previously this used a
+                          direction:rtl hack on the row to "flip" placement, but RTL
+                          also flips which physical side col-start-2 renders on,
+                          cancelling itself out and leaving every card on the left.) */}
+                      <div className={i % 2 === 1 ? 'sm:col-start-2' : ''}>
+                        <Link href={`/tours/${t._id}`} className="hover-lift group flex flex-col min-h-[168px] rounded-3xl glass gilt-border p-6">
                           <div className="flex items-center gap-2 text-xs text-gilt-300">
                             <CalendarDays size={14} />
                             {new Date(t.startDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                           </div>
                           <h3 className="mt-2 font-display text-xl font-semibold text-white group-hover:text-gilt-200 transition-colors line-clamp-1">{t.title}</h3>
                           <p className="mt-1 flex items-center gap-1.5 text-sm text-white/55"><MapPin size={13} className="text-gilt-400" /><span className="line-clamp-1">{t.route}</span></p>
-                          <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-4">
+                          <div className="mt-auto flex items-center justify-between border-t border-white/5 pt-4">
                             <span className="font-display text-lg font-semibold gilt-text">₹{t.price.toLocaleString('en-IN')}</span>
                             <span className="inline-flex items-center gap-1 text-sm font-medium text-gilt-300">{t.availableSeats} seats <ChevronRight size={15} /></span>
                           </div>
